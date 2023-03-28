@@ -1,0 +1,81 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/JosefinSans-Bold.ttf",
+      "sha1": "bd9707aad222a53f88a00d8389e7e0fbeefeaa52"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-BoldItalic.ttf",
+      "sha1": "0dcd6b0232832a12a1c497b0c3a2746dc33a391b"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-Italic.ttf",
+      "sha1": "7acf1ab5a0305bed376c097072de4b5601e32dae"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-Light.ttf",
+      "sha1": "2913c10d2c6b2b12f4c4844381523c7a790e1e10"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-LightItalic.ttf",
+      "sha1": "4c8f3429a15b0038dea81ea94d46bb87fcb25a9e"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-Regular.ttf",
+      "sha1": "95f405d66578ae639e154a5249f4590098684ba1"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-SemiBold.ttf",
+      "sha1": "9695f75e7b8d95d6db3130eb7be32286538e4af7"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-SemiBoldItalic.ttf",
+      "sha1": "b8ec4d6c33033901489df706156609e528ed3d0f"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-Thin.ttf",
+      "sha1": "748c251e8bd6174f65e460dbc112605b2ef923da"
+    },
+    {
+      "path": "assets/fonts/JosefinSans-ThinItalic.ttf",
+      "sha1": "22f143f4b10cf2ab536edd085d6dc630c29d87c4"
+    },
+    {
+      "path": "assets/fonts/Walkway_Black.ttf",
+      "sha1": "2eb50e2f6e8c5724305d112dab7617fbacdd8ac3"
+    },
+    {
+      "path": "assets/fonts/Walkway_Bold.ttf",
+      "sha1": "6c2dc97ce9ae7e401a16294e63fa6fef1d66f91c"
+    },
+    {
+      "path": "assets/fonts/Walkway_Oblique.ttf",
+      "sha1": "ce380039a7b633e5a7b5675701f5f3efacf9afd8"
+    },
+    {
+      "path": "assets/fonts/Walkway_Oblique_Black.ttf",
+      "sha1": "0fd6714730c107b3d0e3e7f0f56f40da4c3a69a6"
+    },
+    {
+      "path": "assets/fonts/Walkway_Oblique_Bold.ttf",
+      "sha1": "1335889d6110737fbea873b989cb3a02d7031abb"
+    },
+    {
+      "path": "assets/fonts/Walkway_Oblique_SemiBold.ttf",
+      "sha1": "75af5336ffa28c015ee2bc03fa96d37206dd86c4"
+    },
+    {
+      "path": "assets/fonts/Walkway_Oblique_UltraBold.ttf",
+      "sha1": "e6975b2284d7231c46db79e92adc0b34c6637d63"
+    },
+    {
+      "path": "assets/fonts/Walkway_SemiBold.ttf",
+      "sha1": "f07b2e62f92788e56560448c3b42e50b56aeb2e6"
+    },
+    {
+      "path": "assets/fonts/Walkway_UltraBold.ttf",
+      "sha1": "14090587e30b1ab75a865fc339c64e564e83664e"
+    }
+  ]
+}
