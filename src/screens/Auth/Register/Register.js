@@ -82,7 +82,7 @@ const Register = ({navigation}) => {
       .required('Email harus diisi'),
     password: yup
       .string()
-      .min(8, ({min}) => `Password  minimal ${min} digit`)
+      .min(6, ({min}) => `Password  minimal ${min} digit`)
 
       .required('Password harus diisi'),
     jenis_kelamin: yup

@@ -11,6 +11,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -428,7 +429,7 @@ const FormProfile = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2a6049',
+    backgroundColor: color.main,
     alignItems: 'center',
   },
   inner: {

@@ -15,16 +15,16 @@ import {Formik} from 'formik';
 import * as yup from 'yup';
 import ErrorForm from '../../../../../../Components/ErrorForm';
 
-const ModalTicketBaru = ({
+const ModalScanOption = ({
   modalVisible,
   setModalVisible,
   poliValue,
   formField,
   setPoliValue,
-  initialState,
   validationSchema,
   isNew,
   newTicketHandler,
+  initialState,
   skipQueueHandler,
   submitBtnHandler,
 }) => {
@@ -57,59 +57,32 @@ const ModalTicketBaru = ({
             <View style={styles.modalWrapper}>
               <Stack space={3} w="100%" maxW="350px" mx="auto">
                 <FormControl isInvalid={!isValid}>
-                  <Text>Pilih Poli Tujuan</Text>
+                  <Text>Pilih Tujuan</Text>
                   <Select
                     selectedValue={values.id_praktek}
                     minWidth="200"
-                    accessibilityLabel="Pilih Poli"
-                    placeholder="Pilih Poli"
+                    accessibilityLabel="Pilih Tujuan"
+                    placeholder="Pilih Tujuan"
                     _selectedItem={{
                       bg: 'teal.600',
                       endIcon: '',
                     }}
                     mt={1}
                     onValueChange={value => {
-                      setFieldValue('id_praktek', value);
+                      setFieldValue('type', value);
                     }}>
-                    {poliValue.map(item => (
-                      <Select.Item
-                        key={item.id_praktek}
-                        label={`${item.kode_poli}-${item.nama_poli}`}
-                        value={item.id_praktek}
-                      />
-                    ))}
+                    <Select.Item
+                      value="status_antrian"
+                      label="Update Status Antrian"
+                    />
+                    <Select.Item
+                      value="status_hadir"
+                      label="Verifikasi Kehadiran"
+                    />
                   </Select>
-                  {errors.id_praktek && <ErrorForm text={errors.id_praktek} />}
+                  {errors.type && <ErrorForm text={errors.type} />}
                 </FormControl>
 
-                {isNew ? (
-                  <>
-                    <Text>Pilih Prioritas</Text>
-                    <FormControl isInvalid={!isValid}>
-                      <Select
-                        selectedValue={values.prioritas}
-                        minWidth="200"
-                        accessibilityLabel="Pilih Prioritas"
-                        placeholder="Pilih Prioritas"
-                        _selectedItem={{
-                          bg: 'teal.600',
-                          endIcon: '',
-                        }}
-                        mt={1}
-                        onValueChange={value => {
-                          setFieldValue('prioritas', value);
-                        }}>
-                        <Select.Item label="Biasa" value="0" />
-                        <Select.Item label="Darurat/Gawat" value="1" />
-                      </Select>
-                      {errors.prioritas && (
-                        <ErrorForm text={errors.prioritas} />
-                      )}
-                    </FormControl>
-                  </>
-                ) : (
-                  <></>
-                )}
                 <View style={{flexDirection: 'row'}}>
                   <View style={{flex: 2}} />
                   <TouchableOpacity
@@ -143,7 +116,7 @@ const ModalTicketBaru = ({
     </Modal>
   );
 };
-export default ModalTicketBaru;
+export default ModalScanOption;
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -152,6 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalWrapper: {
     margin: 20,

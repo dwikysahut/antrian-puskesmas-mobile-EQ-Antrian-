@@ -2,7 +2,8 @@ import React from 'react';
 import {Select} from 'native-base';
 import {View} from 'react-native';
 
-const SelectPoli = ({poliValue, setPoliValue, dataPoli}) => {
+const SelectPoli = ({poliValue, onPoliChangeHandler, dataPoli}) => {
+  console.log(poliValue);
   return (
     <View>
       <Select
@@ -11,14 +12,18 @@ const SelectPoli = ({poliValue, setPoliValue, dataPoli}) => {
         accessibilityLabel="Pilih Poli"
         placeholder="Pilih Poli"
         _selectedItem={{
-          bg: 'teal.600',
+          bg: 'gray',
           endIcon: '',
         }}
         mt={1}
-        onValueChange={itemValue => setPoliValue(itemValue)}>
-        <Select.Item label="Poli Umum" value="ux" />
-        <Select.Item label="Poli Lansia" value="web" />
-        <Select.Item label="Poli KIA" value="cross" />
+        onValueChange={itemValue => onPoliChangeHandler(itemValue)}>
+        {dataPoli.map(item => (
+          <Select.Item
+            value={item.id_praktek}
+            label={item.nama_poli}
+            key={item.id_praktek}
+          />
+        ))}
       </Select>
     </View>
   );

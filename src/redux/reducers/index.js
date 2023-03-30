@@ -4,8 +4,13 @@ import {REHYDRATE} from 'redux-persist/lib/constants';
 import {logoutUserAction} from '../actions/actionTypes';
 import reducerUser from './reducerUser';
 import reducerInformasi from './reducerInformasi';
+import reducerPraktek from './reducerPraktek';
 
-const combinedReducers = combineReducers({reducerUser, reducerInformasi});
+const combinedReducers = combineReducers({
+  reducerUser,
+  reducerInformasi,
+  reducerPraktek,
+});
 const rootReducer = (state, action) => {
   if (action.type === logoutUserAction) {
     delete state.reducerUser;

@@ -22,6 +22,7 @@ import WavyBackground from 'react-native-wavy-background';
 import {useDispatch, useSelector} from 'react-redux';
 import {logoutUserActionCreator} from '../../../../redux/actions/userAction';
 import {logout} from '../../../../utils/functionHelper';
+import {color} from '../../../../utils/Color';
 // import Icon from 'react-native-vector-icons/Ionicons';
 const waveHeight = Dimensions.get('window').height * 0.1;
 const data = {
@@ -105,7 +106,7 @@ const Profile = props => {
           amplitude={5}
           frequency={30}
           offset={60}
-          color="#2a6049"
+          color={color.main}
         />
       </View>
       <Overview
@@ -115,11 +116,22 @@ const Profile = props => {
         jenisKelamin={dataUser.jenis_kelamin}
       />
       {/* <Button style={styles.buttonAll} title="asda" /> */}
-      <TouchableOpacity
-        style={styles.buttonAll}
-        onPress={onPressSelengkapnyaHandler}>
-        <Text style={styles.whiteText}>Selengkapnya</Text>
-      </TouchableOpacity>
+      {dataUser.role < 3 ? (
+        <TouchableOpacity
+          style={[
+            styles.buttonAll,
+            {backgroundColor: color.main, borderWidth: 0},
+          ]}>
+          <Text style={styles.whiteText} />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.buttonAll}
+          onPress={onPressSelengkapnyaHandler}>
+          <Text style={styles.whiteText}>Selengkapnya</Text>
+        </TouchableOpacity>
+      )}
+
       <ProfileMenu
         onPressHubungiHandler={onPressHubungiHandler}
         onPressKartuIdentitasHandler={onPressKartuIdentitasHandler}

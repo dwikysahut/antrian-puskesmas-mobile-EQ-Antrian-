@@ -32,6 +32,7 @@ import KartuIdentitas from './src/screens/Home/Screens/KartuIdentitas/KartuIdent
 import DetailKartuIdentitas from './src/screens/Home/Screens/DetailKartuIdentitas/DetailKartuIdentitas';
 import Scanner from './src/screens/Home/Screens/Scanner.js/Scanner';
 import HomePendaftaran from './src/screens/Home/Screens/PendaftaranBaru/HomePendaftaran';
+import {color} from './src/utils/Color';
 
 const Stack = createStackNavigator();
 
@@ -148,7 +149,7 @@ const App = () => {
                 options={{
                   title: 'Informasi Saya',
                   headerStyle: {
-                    backgroundColor: '#2a6049',
+                    backgroundColor: color.main,
                     elevation: 0, // remove shadow on Android
                     shadowOpacity: 0, // remove shadow on iOS
                   },

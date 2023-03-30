@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useSelector} from 'react-redux';
 import MenuItem from './MenuItem';
 
 const ProfileMenu = ({
@@ -16,13 +17,19 @@ const ProfileMenu = ({
   onPressHubungiHandler,
   onPressKeluarHandler,
 }) => {
+  const dataUser = useSelector(({reducerUser}) => reducerUser.data);
   return (
     <View style={styles.innerWrapper}>
-      <MenuItem
-        menuName="Kartu Identitas"
-        onPressHandler={onPressKartuIdentitasHandler}
-        isFirst={true}
-      />
+      {dataUser.role < 3 ? (
+        <></>
+      ) : (
+        <MenuItem
+          menuName="Kartu Identitas"
+          onPressHandler={onPressKartuIdentitasHandler}
+          isFirst={true}
+        />
+      )}
+
       <MenuItem
         menuName="Tentang Aplikasi"
         onPressHandler={onPressTentangHandler}

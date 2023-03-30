@@ -116,6 +116,9 @@ const Beranda = props => {
     socket.on('server-addAntrian', () => {
       fetchDataAntrianByPraktek();
     });
+    socket.on('server-editAntrian', () => {
+      fetchDataAntrianByPraktek();
+    });
 
     setDateListValue(dateListGenerate());
     fetchDataAntrianByPraktek();
@@ -165,7 +168,7 @@ const Beranda = props => {
       </Text> */}
 
       <ScrollView style={styles.container}>
-        <View style={{marginHorizontal: 10, marginTop: 8}}>
+        <View style={{marginHorizontal: 32, marginTop: 16}}>
           <ImageSlider
             localImg
             data={[
@@ -184,7 +187,7 @@ const Beranda = props => {
             ]}
             autoPlay={true}
             timer={5000}
-            caroselImageStyle={{resizeMode: 'cover', height: 250}}
+            caroselImageStyle={{resizeMode: 'cover', height: 200}}
             closeIconColor="black"
             activeIndicatorStyle={{backgroundColor: 'darkgreen'}}
             inActiveIndicatorStyle={{

@@ -191,8 +191,11 @@ export const postAntrian = (body, token) =>
   Axios.post(`${URL_BASE}/antrian`, body, options(token));
 export const postAntrianPetugas = (body, token) =>
   Axios.post(`${URL_BASE}/antrian/petugas`, body, options(token));
-export const putAntrian = (id, body) =>
-  Axios.put(`${URL_BASE}/antrian/${id}`, body);
+export const putAntrian = (id, body, token) =>
+  Axios.put(`${URL_BASE}/antrian/${id}`, body, options(token));
+export const putStatusAntrian = (id, body, token) =>
+  Axios.put(`${URL_BASE}/antrian/status/${id}`, body, options(token));
+
 export const deleteAntrian = id => Axios.delete(`${URL_BASE}/antrian/${id}`);
 
 // Detail Antrian

@@ -8,6 +8,8 @@ export const logoutUserAction = 'POST_LOGOUT';
 
 //informasi
 export const getAllInformasiAction = 'GET_ALL_INFORMASI';
+//informasi
+export const getAllPraktekAction = 'GET_ALL_PRAKTEK';
 
 export const pending = '_PENDING';
 export const rejected = '_REJECTED';

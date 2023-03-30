@@ -73,7 +73,7 @@ const Login = props => {
 
     password: yup
       .string()
-      .min(8, ({min}) => `Password  minimal ${min} digit`)
+      .min(6, ({min}) => `Password  minimal ${min} digit`)
 
       .required('Password harus diisi'),
   });

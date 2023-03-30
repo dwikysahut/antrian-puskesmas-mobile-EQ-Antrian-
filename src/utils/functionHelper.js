@@ -15,6 +15,22 @@ const showToast = (type, title, textBody) => {
     textBody: textBody,
   });
 };
+
+const alertConfirmation = (title, fnAction) => {
+  return Alert.alert('Konfirmasi', title, [
+    {
+      text: 'Batal',
+      onPress: () => {},
+      onDismiss: () => {},
+
+      style: 'cancel',
+    },
+    {
+      text: 'Ya',
+      onPress: () => fnAction(),
+    },
+  ]);
+};
 const dialogCallback = (title, body, isShow, type, callback = null) => {
   if (isShow) {
     console.log('show nih');
@@ -310,19 +326,39 @@ const dateOnlyConvert = date => {
       : newDate.getMonth() + 1
   }/${newDate.getFullYear()}`;
 };
-
+const dateToDBConvert = (date = null) => {
+  let newDate;
+  if (date == null) {
+    newDate = new Date();
+  } else {
+    newDate = new Date(date);
+  }
+  return `${newDate.getFullYear()}-${
+    (newDate.getMonth() + 1).toString().length < 2
+      ? `0${newDate.getMonth() + 1}`
+      : newDate.getMonth() + 1
+  }-${
+    newDate.getDate().toString().length < 2
+      ? `0${newDate.getDate()}`
+      : newDate.getDate()
+  }`;
+};
 const logout = async (
   refreshToken,
-  setIsLoading,
+  setIsLoading = null,
   dispatch,
   logoutUserActionCreator,
   navigation,
 ) => {
-  setIsLoading(true);
+  if (setIsLoading) {
+    setIsLoading(true);
+  }
   await dispatch(logoutUserActionCreator(refreshToken));
   Dialog.hide();
   navigation.navigate('Intro');
-  setIsLoading(false);
+  if (setIsLoading) {
+    setIsLoading(false);
+  }
 };
 const authRefreshToken = async (
   dispatch,
@@ -340,5 +376,7 @@ export {
   showToast,
   dateConvert,
   errorFetch,
+  alertConfirmation,
   dateOnlyConvert,
+  dateToDBConvert,
 };

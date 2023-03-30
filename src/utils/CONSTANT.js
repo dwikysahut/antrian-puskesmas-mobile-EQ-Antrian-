@@ -33,7 +33,7 @@ const errorType = {
     'Email belum diverifikasi, silahkan melakukan verifikasi email',
 };
 
-const URL_BASE = 'https://ad71-125-166-3-241.ap.ngrok.io';
+const URL_BASE = 'https://dad6-125-166-3-241.ap.ngrok.io';
 const URL_BASE_IMAGE = `${URL_BASE}/public/image`;
 
 export {

@@ -67,7 +67,7 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
                 {data?.nomor_antrian}
               </Text>
 
-              <QRCode value={data.id_antrian} size={150} />
+              <QRCode value={data?.id_antrian} size={150} />
               <Text
                 style={{
                   fontSize: 18,
@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalWrapper: {
     margin: 20,

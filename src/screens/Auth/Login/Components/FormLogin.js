@@ -13,6 +13,7 @@ import {
 } from 'native-base';
 import React from 'react';
 import LoaderIndicator from '../../../../Components/LoaderIndicator';
+import {color} from '../../../../utils/Color';
 
 const FormLogin = ({
   isValid,
@@ -86,7 +87,7 @@ const FormLogin = ({
       ) : (
         <Button
           variant="outline"
-          backgroundColor="#2a6049"
+          backgroundColor={color.main}
           onPress={handleSubmit}>
           <Text color="white">Masuk</Text>
         </Button>

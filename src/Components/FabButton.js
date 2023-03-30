@@ -23,7 +23,7 @@ const FabButton = ({isShow, onPressFabHandler}) => {
 };
 
 const styles = StyleSheet.create({
-  fabGoTop: {backgroundColor: 'darkgreen', bottom: 50},
+  fabGoTop: {backgroundColor: 'black', bottom: 50},
 });
 
 export default FabButton;

@@ -1,9 +1,31 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {Select} from 'native-base';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
-const ItemAntrian = ({data}) => {
+import {dateOnlyConvert} from '../../../../../../utils/functionHelper';
+import {statusAntrian} from '../../../../../../utils/DATA';
+import {color} from '../../../../../../utils/Color';
+const ItemAntrian = ({
+  data,
+  onClickShowStatusModal,
+  onClickShowKehadiranModal,
+  handlerStatus,
+  handlerKehadiran,
+}) => {
+  const renderStatusAntrianColor = value => {
+    if (value < 4) {
+      return '#CFB53B';
+    } else if (value == 4) {
+      return 'black';
+    } else if (value == 5) {
+      return 'black';
+    } else if (value == 6) {
+      return 'darkgreen';
+    } else {
+      return 'darkred';
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.firstRow}>
@@ -11,7 +33,7 @@ const ItemAntrian = ({data}) => {
           <FontAwesome name="ticket" size={70} color="black" />
         </View>
         <View style={styles.columnWrapper}>
-          <Text style={{color: 'black', fontSize: 19}}>{data.jenis_poli}</Text>
+          <Text style={{color: 'black', fontSize: 19}}>{data.poli_tujuan}</Text>
           <Text
             style={{
               color: 'black',
@@ -24,20 +46,25 @@ const ItemAntrian = ({data}) => {
         </View>
         <View style={[styles.columnWrapper, {alignItems: 'flex-end'}]}>
           <Text style={{color: 'black', fontSize: 15}}>
-            {data.tgl_kunjungan}
+            {dateOnlyConvert(data.tanggal_periksa)}
           </Text>
           <Text
             style={{
-              color: 'white',
+              color: data.status_hadir == 0 ? 'black' : 'white',
               borderRadius: 5,
               backgroundColor:
-                data.status_kehadiran === 1 ? 'darkgreen' : 'red',
+                data.status_hadir === 1
+                  ? 'darkgreen'
+                  : data.status_hadir == 2
+                  ? 'red'
+                  : 'white',
               fontSize: 16,
               padding: 8,
+
               marginTop: 8,
               fontWeight: 'bold',
             }}>
-            {data.status_kehadiran === 1 ? 'Hadir' : 'Belum Hadir'}
+            {data.status_hadir === 1 ? 'Hadir' : 'Belum Hadir'}
           </Text>
         </View>
       </View>
@@ -49,26 +76,47 @@ const ItemAntrian = ({data}) => {
 
         <Text
           style={{
-            color: data.id_status < 4 ? '#CFB53B' : 'darkgreen',
+            color: renderStatusAntrianColor(data.status_antrian),
             fontSize: 16,
             fontWeight: 'bold',
           }}>
-          {data.status_antrian}
+          {statusAntrian[parseInt(data.status_antrian, 10) - 1]}
         </Text>
       </View>
-      <View style={styles.row}>
-        <TouchableOpacity style={[styles.btn, {backgroundColor: 'darkgreen'}]}>
-          <Text style={{fontSize: 18, color: 'white', textAlign: 'center'}}>
-            Selesai
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.btn, {backgroundColor: 'darkred', marginStart: 10}]}>
-          <Text style={{fontSize: 18, color: 'white', textAlign: 'center'}}>
-            Batalkan
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {data.status_hadir == 0 ? (
+        <View style={styles.row}>
+          <TouchableOpacity
+            onPress={() => onClickShowKehadiranModal(data)}
+            style={[
+              styles.btn,
+              {
+                backgroundColor: 'white',
+                borderColor: color.main,
+                borderWidth: 1,
+              },
+            ]}>
+            <Text
+              style={{fontSize: 15, color: color.main, textAlign: 'center'}}>
+              Verifikasi Kehadiran
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <></>
+      )}
+      {data.status_antrian >= 4 && data.status_antrian < 6 ? (
+        <View style={styles.row}>
+          <TouchableOpacity
+            onPress={() => onClickShowStatusModal(data)}
+            style={[styles.btn, {backgroundColor: color.main}]}>
+            <Text style={{fontSize: 18, color: 'white', textAlign: 'center'}}>
+              Ubah Status Antrian
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };

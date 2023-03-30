@@ -2,6 +2,7 @@ import {ScrollView} from 'react-native';
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {color} from '../../../../../utils/Color';
 
 const DateListBar = ({dateValue, onChangeDateHandler, dateListValue}) => {
   return (
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     padding: 5,
     zIndex: 4,
 
-    backgroundColor: '#2a6049',
+    backgroundColor: color.main,
   },
   dateWrapper: {
     marginHorizontal: 10,

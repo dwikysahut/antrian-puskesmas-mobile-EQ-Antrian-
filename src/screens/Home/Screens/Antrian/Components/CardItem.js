@@ -65,7 +65,9 @@ const CardItem = ({
       {isActive === 1 && data.id_status < 4 ? (
         <TouchableOpacity
           style={styles.scanBtn}
-          onPress={() => navigation.navigate('Scanner')}>
+          onPress={() =>
+            navigation.navigate('Scanner', {type: 'status_antrian'})
+          }>
           <Text style={{color: 'darkgreen'}}>Scan QR Code</Text>
         </TouchableOpacity>
       ) : (

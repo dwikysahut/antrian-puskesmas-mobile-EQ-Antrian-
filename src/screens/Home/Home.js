@@ -73,6 +73,7 @@ const Home = props => {
           tabBarIcon: ({color, size}) => (
             <FontAwesome name="home" color={color} size={30} />
           ),
+
           headerShown: false,
         }}
       />
@@ -145,7 +146,7 @@ const Home = props => {
             <Ionicons name="person" color={color} size={30} />
           ),
           headerStyle: {
-            backgroundColor: '#2a6049',
+            backgroundColor: color.main,
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 0,
