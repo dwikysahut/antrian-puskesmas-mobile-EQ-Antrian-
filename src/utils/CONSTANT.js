@@ -33,16 +33,21 @@ const errorType = {
     'Email belum diverifikasi, silahkan melakukan verifikasi email',
 };
 
-const URL_BASE = 'https://dad6-125-166-3-241.ap.ngrok.io';
+const CHANNEL_ID = 'EQ-Puskesmas-Notification';
+
+const URL_BASE = 'https://4539-36-82-11-154.ngrok-free.app';
+const URL_SOCKET = 'https://localhost:5000';
 const URL_BASE_IMAGE = `${URL_BASE}/public/image`;
 
 export {
   swalType,
   successfullyMessage,
   failedMessage,
+  CHANNEL_ID,
   confirmationMessage,
   errorType,
   URL_BASE,
+  URL_SOCKET,
   URL_BASE_IMAGE,
   loginMessage,
 };

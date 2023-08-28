@@ -101,15 +101,32 @@ export const deletePoli = (id, token) =>
   Axios.delete(`${URL_BASE}/poli/${id}`, options(token));
 
 // Notifikasi
-export const getAllNotifikasi = () => Axios.get(`${URL_BASE}/notifikasi`);
-export const getNotifikasiById = id =>
-  Axios.get(`${URL_BASE}/notifikasi/${id}`);
-export const postNotifikasi = body =>
-  Axios.post(`${URL_BASE}/notifikasi`, body);
-export const putNotifikasi = (id, body) =>
-  Axios.put(`${URL_BASE}/notifikasi/${id}`, body);
-export const deleteNotifikasi = id =>
-  Axios.delete(`${URL_BASE}/notifikasi/${id}`);
+export const getAllNotifikasi = token =>
+  Axios.get(`${URL_BASE}/notifikasi`, options(token));
+export const getNotifikasiById = (id, token) =>
+  Axios.get(`${URL_BASE}/notifikasi/${id}`, options(token));
+export const getNotifikasiByUser = (id, token) =>
+  Axios.get(`${URL_BASE}/notifikasi/user/${id}`, options(token));
+export const postNotifikasi = (body, token) =>
+  Axios.post(`${URL_BASE}/notifikasi`, body, options(token));
+export const postNotifikasiRequest = (body, token) =>
+  Axios.post(`${URL_BASE}/notifikasi/reverse/request`, body, options(token));
+export const postNotifikasiReverseOffline = (body, token) =>
+  Axios.post(
+    `${URL_BASE}/notifikasi/reverse/offline/response`,
+    body,
+    options(token),
+  );
+export const putNotifikasiRequest = (id, body, token) =>
+  Axios.put(
+    `${URL_BASE}/notifikasi/reverse/response/${id}`,
+    body,
+    options(token),
+  );
+export const putNotifikasi = (id, body, token) =>
+  Axios.put(`${URL_BASE}/notifikasi/${id}`, body, options(token));
+export const deleteNotifikasi = (id, token) =>
+  Axios.delete(`${URL_BASE}/notifikasi/${id}`, options(token));
 
 // Pasien
 export const getAllPasien = token =>
@@ -118,6 +135,14 @@ export const getPasienById = (id, token) =>
   Axios.get(`${URL_BASE}/pasien/${id}`, options(token));
 export const getAllPasienNoRM = (id, token) =>
   Axios.get(`${URL_BASE}/pasien/rekam-medis/${id}`, options(token));
+export const getPasienAntrianById = (id, token) =>
+  Axios.get(`${URL_BASE}/pasien/antrian/${id}`, options(token));
+export const getPasienAntrianByIdAndKk = (id, query, token) =>
+  Axios.get(
+    `${URL_BASE}/pasien/antrian/kartu-keluarga/${id}?${query}`,
+    options(token),
+  );
+
 export const getAllPasienNoKK = (id, token) =>
   Axios.get(`${URL_BASE}/pasien/kartu-keluarga/${id}`, options(token));
 export const postPasien = (body, token) =>
@@ -185,6 +210,19 @@ export const getAntrianByPrakek = query =>
   Axios.get(`${URL_BASE}/antrian/all/praktek?${query}`);
 export const getAllAntrianByFilter = (query, token = null) =>
   Axios.get(`${URL_BASE}/antrian?${query}`, options(token));
+export const getAllAntrianByUser = (token = null) =>
+  Axios.get(`${URL_BASE}/antrian/all/user`, options(token));
+export const getAllAntrianByNoKK = (id, token = null) =>
+  Axios.get(`${URL_BASE}/antrian/kartu-keluarga/${id}`, options(token));
+export const getInformasiAntrianSementara = (query, token = null) =>
+  Axios.get(`${URL_BASE}/antrian/check/available?${query}`, options(token));
+export const getEstimasiWaktu = (id, token = null) =>
+  Axios.get(`${URL_BASE}/antrian/check/estimasi-waktu/${id}`, options(token));
+export const getInformasiKuotaAntrian = (query, token = null) =>
+  Axios.get(
+    `${URL_BASE}/antrian/check/kuota/available?${query}`,
+    options(token),
+  );
 
 export const getAntrianById = id => Axios.get(`${URL_BASE}/antrian/${id}`);
 export const postAntrian = (body, token) =>
@@ -205,6 +243,8 @@ export const getDetailAntrianById = (id, token) =>
   Axios.get(`${URL_BASE}/detail-antrian/${id}`, options(token));
 export const getDetailAntrianByIdAntrian = (id, token) =>
   Axios.get(`${URL_BASE}/detail-antrian/antrian/${id}`, options(token));
+export const getDetailFinishAntrianByIdAntrian = (id, token) =>
+  Axios.get(`${URL_BASE}/detail-antrian/antrian/finish/${id}`, options(token));
 export const postDetailAntrian = (body, token) =>
   Axios.post(`${URL_BASE}/detail-antrian`, body, options(token));
 export const putDetailAntrian = (id, body, token) =>

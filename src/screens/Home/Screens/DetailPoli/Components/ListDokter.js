@@ -29,8 +29,9 @@ const ListDokter = ({data}) => {
       {data
         .filter(
           (item, index) =>
+            item.status_operasional == 1 &&
             !data
-              .map(item => item.id_dokter)
+              .map(itemCompare => itemCompare.id_dokter)
               .includes(item.id_dokter, index + 1),
         )
         .map(item => (
@@ -44,8 +45,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
     marginTop: 10,
+    flexWrap: 'wrap',
     margin: 10,
     borderRadius: 10,
 

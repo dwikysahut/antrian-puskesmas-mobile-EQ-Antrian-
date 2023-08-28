@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 200,
     height: 200,
-    marginBottom: 30,
+    marginBottom: 50,
   },
   image: {},
   welcomeText: {

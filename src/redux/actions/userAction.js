@@ -5,6 +5,7 @@ import {
   refreshTokenAction,
   putUserAction,
   getUserProfileAction,
+  storeFcmToken,
 } from './actionTypes';
 
 import {
@@ -24,6 +25,10 @@ export const getUserByIdActionCreator = (id, token) => ({
 export const loginUserActionCreator = body => ({
   type: loginUserAction,
   payload: loginUser(body),
+});
+export const storeFcmTokenActionCreator = body => ({
+  type: storeFcmToken,
+  payload: body,
 });
 
 export const logoutUserActionCreator = token => ({

@@ -66,7 +66,8 @@ const KartuIdentitas = props => {
     setIsLoading(true);
     try {
       const response = await getAllPasienNoKK(
-        '1111111111111111',
+        dataUser.no_kk,
+        // '1111111111111111',
         dataUser.token,
       );
       if (response.status === 200) {
@@ -97,6 +98,7 @@ const KartuIdentitas = props => {
 
   useEffect(() => {
     fetchDataKeluarga();
+    console.log(dataUser);
   }, []);
   useEffect(() => {
     if (isFocused) {

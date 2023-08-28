@@ -32,14 +32,21 @@ import {
   dialogFeedback,
   errorFetchWithFeedback,
 } from '../../../utils/functionHelper';
-import {ALERT_TYPE} from 'react-native-alert-notification';
+
+import {
+  ALERT_TYPE,
+  Dialog,
+  AlertNotificationRoot,
+  Toast,
+} from 'react-native-alert-notification';
+
 const formState = {email: ''};
 const LupaPassword = ({route, navigation}) => {
   const forgotPasswordValidationSchema = yup.object().shape({
     email: yup
       .string()
       .email('Masukkan Email yang valid')
-      .required('Kode Verifikasi Harus Diisi'),
+      .required('Email Harus Diisi'),
   });
   const onSubmitHandler = async (formData, {resetForm}) => {
     try {
@@ -69,48 +76,50 @@ const LupaPassword = ({route, navigation}) => {
 
   useEffect(() => {});
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex: 1}}
-      enabled>
-      <ScrollView style={styles.container}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.inner}>
-            <Text style={styles.headline}>Lupa Password</Text>
-            <Text style={styles.subHeadline}>
-              Password baru akan dikirimkan melalui email anda
-            </Text>
-            <Formik
-              validateOnChange={false}
-              enableReinitialize
-              initialValues={{...formState}}
-              validationSchema={forgotPasswordValidationSchema}
-              onSubmit={onSubmitHandler}>
-              {({handleChange, handleSubmit, values, errors, isValid}) => (
-                <Stack space={4} w="100%" maxW="350px" mx="auto">
-                  <CustomForm
-                    errors={errors.email}
-                    handleChange={handleChange('email')}
-                    isValid={isValid}
-                    values={values.email}
-                    keyboardType="email-address"
-                    placeholder="Email"
-                  />
+    <AlertNotificationRoot>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{flex: 1}}
+        enabled>
+        <ScrollView style={styles.container}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.inner}>
+              <Text style={styles.headline}>Lupa Password</Text>
+              <Text style={styles.subHeadline}>
+                Password baru akan dikirimkan melalui email anda
+              </Text>
+              <Formik
+                validateOnChange={false}
+                enableReinitialize
+                initialValues={{...formState}}
+                validationSchema={forgotPasswordValidationSchema}
+                onSubmit={onSubmitHandler}>
+                {({handleChange, handleSubmit, values, errors, isValid}) => (
+                  <Stack space={4} w="100%" maxW="350px" mx="auto">
+                    <CustomForm
+                      errors={errors.email}
+                      handleChange={handleChange('email')}
+                      isValid={isValid}
+                      values={values.email}
+                      keyboardType="email-address"
+                      placeholder="Email"
+                    />
 
-                  <Button
-                    variant="outline"
-                    backgroundColor={color.main}
-                    onPress={handleSubmit}>
-                    <Text color="white">Submit</Text>
-                  </Button>
-                </Stack>
-              )}
-            </Formik>
-            <View style={{flex: 1}} />
-          </View>
-        </TouchableWithoutFeedback>
-      </ScrollView>
-    </KeyboardAvoidingView>
+                    <Button
+                      variant="outline"
+                      backgroundColor={color.main}
+                      onPress={handleSubmit}>
+                      <Text color="white">Submit</Text>
+                    </Button>
+                  </Stack>
+                )}
+              </Formik>
+              <View style={{flex: 1}} />
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </AlertNotificationRoot>
   );
 };
 

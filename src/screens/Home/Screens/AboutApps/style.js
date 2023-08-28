@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   image: {},
   welcomeText: {
     fontSize: 32,
-    padding: 10,
+    padding: 14,
     color: 'black',
     fontFamily: 'JosefinSans-Bold',
   },

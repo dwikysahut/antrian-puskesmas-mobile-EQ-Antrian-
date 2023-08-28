@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
   bodyText: {
     fontSize: 18,
     padding: 5,
+    color: 'black',
     textAlign: 'justify',
     lineHeight: 30,
   },

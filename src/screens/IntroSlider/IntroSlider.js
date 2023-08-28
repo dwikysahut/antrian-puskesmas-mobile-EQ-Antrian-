@@ -1,8 +1,9 @@
 import {Text} from 'native-base';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Image, View, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AppIntroSlider from 'react-native-app-intro-slider';
+import useCameraPermission from '../../utils/useCameraPermission';
 import {responsiveFontSize} from 'react-native-responsive-dimensions';
 import styles from './style';
 import {color} from '../../utils/Color';
@@ -36,6 +37,10 @@ const dimensions = Dimensions.get('window');
 const imageHeight = Math.round((dimensions.width * 11) / 16);
 const imageWidth = dimensions.width;
 const IntroSlider = () => {
+  const {requestCameraPermission} = useCameraPermission();
+  useEffect(() => {
+    requestCameraPermission();
+  });
   const _renderItem = ({item}) => {
     return (
       <View style={styles.slide}>

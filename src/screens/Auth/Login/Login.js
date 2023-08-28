@@ -21,7 +21,6 @@ import {
   ALERT_TYPE,
   Dialog,
   AlertNotificationRoot,
-  Toast,
 } from 'react-native-alert-notification';
 
 import {
@@ -35,8 +34,9 @@ import {
   Platform,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import styles from './style';
 import {Formik} from 'formik';
@@ -47,10 +47,57 @@ import ErrorForm from '../../../Components/ErrorForm';
 import {errorType, loginMessage} from '../../../utils/CONSTANT';
 import Form from './Components/FormLogin';
 import FormLogin from './Components/FormLogin';
-const KEYBOARD_VERTICAL_OFFSET = useHeaderHeight + StatusBar.currentHeight;
+import {showToast2} from '../../../utils/functionHelper';
+import {showToast} from '../../../utils/functionHelper';
+import {Toast} from 'react-native-toast-message/lib/src/Toast';
+import {BaseToast, ErrorToast} from 'react-native-toast-message';
 
+const KEYBOARD_VERTICAL_OFFSET = useHeaderHeight + StatusBar.currentHeight;
+const toastConfig = {
+  success: props => (
+    <BaseToast
+      {...props}
+      style={{
+        borderLeftColor: '#6dad6d',
+        backgroundColor: '#303030',
+      }}
+      contentContainerStyle={{paddingVertical: 8}}
+      text1Style={{
+        fontSize: 17,
+        color: 'white',
+      }}
+      text2Style={{
+        fontSize: 15,
+        color: 'white',
+      }}
+      text2NumberOfLines={3}
+    />
+  ),
+
+  error: props => (
+    <ErrorToast
+      {...props}
+      style={{
+        borderLeftColor: '#ea4037',
+        backgroundColor: '#303030',
+        height: 80,
+      }}
+      text1Style={{
+        fontSize: 17,
+        color: 'white',
+      }}
+      text2NumberOfLines={3}
+      text2Style={{
+        fontSize: 15,
+        color: 'white',
+      }}
+    />
+  ),
+};
 const Login = props => {
   const deviceWidth = Dimensions.get('window').width;
+  const navigation = useNavigation();
+  const isFocused = useIsFocused();
 
   const [alertValue, setAlertValue] = useState({
     isOpen: false,
@@ -59,6 +106,7 @@ const Login = props => {
   });
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRender, setIsRender] = useState(true);
   const [isLogin, setIsLogin] = useState(false);
   const [formState, setFormState] = useState({
     user_id: '',
@@ -81,7 +129,19 @@ const Login = props => {
   const forgotPasswordNavigation = () => {
     props.navigation.navigate('LupaPassword');
   };
+  const registerNavigation = () => {
+    props.navigation.navigate('Register');
+  };
 
+  // useEffect(() => {
+  //   setFormState({
+  //     user_id: '',
+
+  //     password: '',
+  //   });
+  //   // setIsRender(!isRender);
+  //   // return unsubscribe;
+  // }, [isFocused]);
   useEffect(() => {
     if (alertValue.isOpen) {
       dialogCallback(
@@ -99,45 +159,85 @@ const Login = props => {
   useEffect(() => {
     // console.log(props.dataUser?.token);
     if (isLogin && props.isFulfilled && props.data?.token?.length > 0) {
-      dialogFeedback(
-        'Success',
-        loginMessage.success,
-        true,
-        ALERT_TYPE.SUCCESS,
-        10000,
-        () => {
-          console.log(props.isFulfilled);
+      console.log('sukses');
+      showToast2(ALERT_TYPE.SUCCESS, 'Success', loginMessage.success);
+      setTimeout(() => {
+        props.navigation.replace('Home');
+        setIsLogin(false);
+      }, 2000);
+      // dialogFeedback(
+      //   'Success',
+      //   loginMessage.success,
+      //   true,
+      //   ALERT_TYPE.SUCCESS,
+      //   2000,
+      //   () => {
+      //     console.log(props.isFulfilled);
+      //     props.navigation.navigate('Home');
+      //     setIsLogin(false);
+      //   },
+      // );
+
+      // return () => {
+      //   clearTimeout(timeout);
+      // };
+    } else {
+      if (isLogin && props.isFulfilled) {
+        showToast2('Success', loginMessage.success, ALERT_TYPE.SUCCESS);
+        setTimeout(() => {
           props.navigation.navigate('Home');
           setIsLogin(false);
-        },
-      );
+        }, 2000);
+        console.log('sukses');
+        // dialogFeedback(
+        //   'Success',
+        //   loginMessage.success,
+        //   true,
+        //   ALERT_TYPE.SUCCESS,
+        //   2000,
+        //   () => {
+        //     console.log(props.isFulfilled);
+        //     props.navigation.navigate('Home');
+        //     setIsLogin(false);
+        //   },
+        // );
 
-      // return () => {
-      //   clearTimeout(timeout);
-      // };
+        // return () => {
+        //   clearTimeout(timeout);
+        // };
+      }
     }
-  }, [props.isFulfilled, isLogin, props.data]);
+  }, [props.isFulfilled, props.data.token, props.navigation]);
   useEffect(() => {
     // console.log(props.dataUser?.token);
-    if (isLogin && props.isRejected) {
-      dialogFeedback(
-        'gaggal',
-        loginMessage.success,
-        true,
-        ALERT_TYPE.SUCCESS,
-        10000,
-        () => {
-          console.log(props.isFulfilled);
-          // props.navigation.navigate('Home');
-          setIsLogin(false);
-        },
-      );
+    console.log(props?.error?.message);
+    if (isLogin && props.isRejected && props.error) {
+      console.log(props.error.message);
+      console.log('ini');
+
+      showToast2(ALERT_TYPE.DANGER, 'Oops..', props.error.message);
+
+      setIsLogin(false);
+
+      // dialogFeedback(
+      //   'gagal',
+      //   props.error.message,
+      //   true,
+      //   ALERT_TYPE.DANGER,
+      //   2000,
+      //   () => {
+
+      //     // console.log(props.isFulfilled);
+      //     // props.navigation.navigate('Home');
+      //     setIsLogin(false);
+      //   },
+      // );
 
       // return () => {
       //   clearTimeout(timeout);
       // };
     }
-  }, [props.isRejected, isLogin]);
+  }, [props.isRejected, props.error]);
 
   const onSubmitHandler = (formData, {resetForm, setFieldValue}) => {
     setIsLogin(true);
@@ -150,32 +250,37 @@ const Login = props => {
       .catch(error => {
         if (error.response.data.message === errorType.EMAIL_UNVERIFY) {
           // setIsLoading(false);
-
-          dialogFeedback(
-            'Oops..',
-            error.response.data.message,
-            true,
-            ALERT_TYPE.DANGER,
-            4000,
-            () => {
-              console.log('error email');
-              props.navigation.navigate('EmailVerify', {
-                user_id: formData.user_id,
-              });
-            },
-          );
+          showToast2(ALERT_TYPE.DANGER, 'Oops..', error.response.data.message);
+          setTimeout(() => {
+            props.navigation.navigate('EmailVerify', {
+              user_id: formData.user_id,
+            });
+            setIsLogin(false);
+          }, 3000);
+          // dialogFeedback(
+          //   'Oops..',
+          //   error.response.data.message,
+          //   true,
+          //   ALERT_TYPE.DANGER,
+          //   4000,
+          //   () => {
+          //     console.log('error email');
+          //     props.navigation.navigate('EmailVerify', {
+          //       user_id: formData.user_id,
+          //     });
+          //   },
+          // );
         } else {
           console.log('error');
-          errorFetchWithFeedback(error, props.navigation.navigate, 8000);
+
+          // errorFetchWithFeedback(error, props.navigation.navigate, 8000);
         }
       })
       .finally(() => {
-        setIsLogin(false);
-
         setFieldValue('password', '');
       });
   };
-
+  console.log('render');
   return (
     <AlertNotificationRoot>
       <KeyboardAvoidingView
@@ -224,6 +329,7 @@ const Login = props => {
                     <FormLogin
                       errors={errors}
                       forgotPasswordNavigation={forgotPasswordNavigation}
+                      registerNavigation={registerNavigation}
                       handleChange={handleChange}
                       handleSubmit={handleSubmit}
                       isValid={isValid}
@@ -239,6 +345,7 @@ const Login = props => {
               )}
             </Formik>
           </TouchableWithoutFeedback>
+          <Toast config={toastConfig} />
         </SafeAreaView>
       </KeyboardAvoidingView>
     </AlertNotificationRoot>

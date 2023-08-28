@@ -5,7 +5,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ModalTicketBaru from './Components/ModalTicketBaru';
 import ModalTicket from './Components/ModalTicket';
 import {Formik} from 'formik';
-
+import ThermalPrinterModule from 'react-native-thermal-printer';
 import * as yup from 'yup';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -19,6 +19,7 @@ import {
   showToast,
   errorFetchWithFeedback,
   logout,
+  dateOnlyConvert,
 } from '../../../../../utils/functionHelper';
 import {
   logoutUserActionCreator,
@@ -32,13 +33,49 @@ import {successfullyMessage} from '../../../../../utils/CONSTANT';
 import ModalScanOption from './Components/ModalScanOption';
 import {getAllPraktekActionCreator} from '../../../../../redux/actions/praktekAction';
 
+ThermalPrinterModule.defaultConfig = {
+  ...ThermalPrinterModule.defaultConfig,
+  ip: '192.168.100.246',
+  port: 9100,
+  autoCut: false,
+  printerWidthMM: 58,
+  timeout: 30000, // in milliseconds (version >= 2.2.0)
+};
 const initialStateForm = {
   id_praktek: '',
   prioritas: '',
 };
 const TiketAntrian = ({navigation}) => {
   const dispatch = useDispatch();
-
+  const [state, setState] = useState({
+    text:
+      '[L]<img>https://via.placeholder.com/300.jpg</img>\n' +
+      '[L]\n' +
+      "[C]<u><font size='big'>ORDER N°045</font></u>\n" +
+      '[L]\n' +
+      '[C]================================\n' +
+      '[L]\n' +
+      '[L]<b>BEAUTIFUL SHIRT</b>[R]9.99e\n' +
+      '[L]  + Size : S\n' +
+      '[L]\n' +
+      '[L]<b>AWESOME HAT</b>[R]24.99e\n' +
+      '[L]  + Size : 57/58\n' +
+      '[L]\n' +
+      '[C]--------------------------------\n' +
+      '[R]TOTAL PRICE :[R]34.98e\n' +
+      '[R]TAX :[R]4.23e\n' +
+      '[L]\n' +
+      '[C]================================\n' +
+      '[L]\n' +
+      "[L]<font size='tall'>Customer :</font>\n" +
+      '[L]Raymond DUPONT\n' +
+      '[L]5 rue des girafes\n' +
+      '[L]31547 PERPETES\n' +
+      '[L]Tel : +33801201456\n' +
+      '[L]\n' +
+      "[C]<barcode type='ean13' height='10'>831254784551</barcode>\n" +
+      "[C]<qrcode size='20'>http://www.developpeur-web.dantsu.com/</qrcode>",
+  });
   const dataUser = useSelector(({reducerUser}) => reducerUser.data);
   const dataPraktek = useSelector(({reducerPraktek}) => reducerPraktek);
   const {
@@ -67,8 +104,57 @@ const TiketAntrian = ({navigation}) => {
     type: yup.string().required('Pilih tujuan Scan'),
   });
 
-  const printTicketHandler = () => {
-    //print
+  const printTicketHandler = async () => {
+    const template =
+      '[L]================================\n' +
+      `[L]${dataTicket.poli_tujuan}` +
+      `[R]${dateOnlyConvert(dataTicket.tanggal_periksa)}` +
+      '[C]\n' +
+      `[C]Sisa Antrian : ${dataTicket.sisa_antrian}` +
+      '[C]\n' +
+      `[C]<b><font size='big'>${dataTicket.nomor_antrian}</font></b>` +
+      '[C]\n' +
+      `[L]   <qrcode size='22.5'>${JSON.stringify({
+        data: {
+          id_antrian: dataTicket.id_antrian,
+          status_antrian: dataTicket.status_antrian,
+          status_hadir: dataTicket.status_hadir,
+        },
+      })}</qrcode>\n` +
+      '[C]\n' +
+      `[L]Estimasi Dilayani: [R]${dataTicket.waktu_pelayanan}` +
+      '[C]\n' +
+      `[L]Dipanggil dalam : [R]${dataTicket.estimasi_waktu_pelayanan} menit` +
+      '[C]\n' +
+      '[C]\n' +
+      '[L]================================\n';
+    try {
+      console.log('We will invoke the native module here!');
+      //tcp
+      // await ThermalPrinterModule.printTcp({payload: state.text});
+
+      //
+      // bluetooth
+      await ThermalPrinterModule.printBluetooth({
+        payload: template,
+        printerWidthMM: 58,
+        printerNbrCharactersPerLine: 38,
+      });
+      //
+
+      console.log('done printing');
+    } catch (err) {
+      if (err.message == 'Bluetooth Device Not Found') {
+        dialogCallback(
+          'Oops..',
+          'Periksa koneksi bluetooth device dengan printer dan pastikan sudah menyala',
+          true,
+          ALERT_TYPE.DANGER,
+          null,
+        );
+      }
+      console.log(err);
+    }
   };
 
   const onScanClickHandler = (formBody, {resetForm}) => {
@@ -243,6 +329,7 @@ const TiketAntrian = ({navigation}) => {
         <ModalTicket
           modalVisible={modalTicketVisible}
           data={dataTicket}
+          onCetakHandler={printTicketHandler}
           setModalVisible={setModalTicketVisible}
         />
       </View>

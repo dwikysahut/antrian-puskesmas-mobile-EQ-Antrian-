@@ -22,6 +22,7 @@ const FormLogin = ({
   errors,
   show,
   setShow,
+  registerNavigation,
   forgotPasswordNavigation,
   navigation,
   handleSubmit,
@@ -96,7 +97,7 @@ const FormLogin = ({
       <Button
         variant="outline"
         backgroundColor="white"
-        onPress={() => navigation.navigate('Register')}>
+        onPress={registerNavigation}>
         <Text color="darkgreen">Daftar</Text>
       </Button>
     </Stack>

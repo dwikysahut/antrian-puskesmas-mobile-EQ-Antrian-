@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Image,
   View,
@@ -17,7 +17,7 @@ import Toast from 'react-native-toast-message';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useSelector, useDispatch} from 'react-redux';
-import {ScrollView} from 'native-base';
+import {ScrollView, Select} from 'native-base';
 import {io} from 'socket.io-client';
 
 import {roundToNearestPixel} from 'react-native/Libraries/Utilities/PixelRatio';
@@ -34,6 +34,8 @@ import {
   getAllAntrianByFilter,
   getAllDetailPraktek,
   getDetailPraktekByIdPraktek,
+  postNotifikasiRequest,
+  postNotifikasiReverseOffline,
 } from '../../../../utils/http';
 import {
   logoutUserActionCreator,
@@ -41,11 +43,14 @@ import {
 } from '../../../../redux/actions/userAction';
 import {
   authRefreshToken,
+  dialogCallback,
   errorFetchWithFeedback,
   logout,
   showToast,
+  showToast2,
 } from '../../../../utils/functionHelper';
 import {URL_BASE} from '../../../../utils/CONSTANT';
+import {SocketContext} from '../../../../context/socket';
 
 // import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -84,15 +89,25 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const DetailPoli = ({navigation, route}) => {
   const dispatch = useDispatch();
+  const socket = useContext(SocketContext);
   const dataUser = useSelector(({reducerUser}) => reducerUser);
-  const [statePraktek, setStatePraktek] = useState('');
+
   const [dataPraktek, setDataPraktek] = useState([]);
-  const [selectedAntrian, setSelectedAntrian] = useState({});
+
+  const [selectedAntrianTujuan, setSelectedAntrianTujuan] = useState(null);
+  const [selectedItemAntrian, setSelectedItemAntrian] = useState(null);
+  const [selectedAntrianAsal, setSelectedAntrianAsal] = useState(null);
   const [dataAntrian, setDataAntrian] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSocket, setIsSocket] = useState(false);
   const [userRegistered, setUserRegistered] = useState(false);
-  // const [stateDate, setStateDate] = useState(route.params.date);
-  const [stateDate, setStateDate] = useState('2023-03-22');
+  const [dataAntrianByCurrentUser, setDataAntrianByCurrentUser] = useState([]);
+
+  const [stateDate, setStateDate] = useState(route.params.date);
+  // const [stateDate, setStateDate] = useState('2023-03-22');
+  const [statePraktek, setStatePraktek] = useState({
+    id_praktek: route.params.idItem,
+  });
 
   const [showModalTukar, setShowModalTukar] = useState(false);
   const [alasanText, setAlasanText] = useState('');
@@ -101,18 +116,88 @@ const DetailPoli = ({navigation, route}) => {
     setAlasanText(text);
   };
 
-  const swapAntrianHandler = item => {};
+  const swapAntrianHandler = (
+    selectedAntrianAsal,
+    selectedAntrianTujuan,
+    alasanText,
+  ) => {
+    const formData = {
+      id_antrian: selectedAntrianAsal.id_antrian,
+      alasan: alasanText,
+      id_antrian_tujuan: selectedAntrianTujuan.id_antrian,
+    };
+    if (selectedAntrianTujuan.sumber == 'Mobile-Pasien') {
+      postNotifikasiRequest(formData, dataUser.data.token)
+        .then(response => {
+          if (response.status == 201) {
+            dialogCallback(
+              '',
+              'Pengajuan penukaran berhasil dikirimkan',
+              true,
+              ALERT_TYPE.SUCCESS,
+            );
+            setShowModalTukar(!showModalTukar);
+          }
+        })
+        .catch(error => {
+          errorFetchWithFeedback(
+            error,
+            navigation.navigate,
+            3000,
+            () =>
+              logout(
+                dataUser.refreshToken,
+                setIsLoading,
+                dispatch,
+                logoutUserActionCreator,
+                navigation,
+              ),
+            () =>
+              authRefreshToken(dispatch, refreshTokenActionCreator, dataUser),
+          );
+        });
+    } else {
+      postNotifikasiReverseOffline(formData, dataUser.data.token)
+        .then(response => {
+          if (response.status == 201) {
+            dialogCallback(
+              '',
+              'Pengajuan penukaran berhasil dikirimkan',
+              true,
+              ALERT_TYPE.SUCCESS,
+            );
+            setShowModalTukar(!showModalTukar);
+          }
+        })
+        .catch(error => {
+          errorFetchWithFeedback(
+            error,
+            navigation.navigate,
+            3000,
+            () =>
+              logout(
+                dataUser.refreshToken,
+                setIsLoading,
+                dispatch,
+                logoutUserActionCreator,
+                navigation,
+              ),
+            () =>
+              authRefreshToken(dispatch, refreshTokenActionCreator, dataUser),
+          );
+        });
+    }
+    console.log(formData);
+  };
   const onSubmitHandler = () => {
     if (alasanText.length < 1) {
       return showToast(ALERT_TYPE.WARNING, 'Oops...', 'Alasan harus diisi');
     }
-    swapAntrianHandler(selectedAntrian);
-
-    console.log(selectedAntrian);
+    swapAntrianHandler(selectedAntrianAsal, selectedAntrianTujuan, alasanText);
   };
   const onClickItemAntrianHandler = item => {
     setShowModalTukar(!showModalTukar);
-    setSelectedAntrian(item);
+    setSelectedAntrianTujuan(item);
   };
   const onPressButtonDaftarHandler = (id, title) => {
     navigation.navigate('HomePendaftaran', {
@@ -155,8 +240,44 @@ const DetailPoli = ({navigation, route}) => {
       dataUser.data.token,
     )
       .then(response => {
-        console.log(response.data.data);
-        setDataAntrian(response.data.data);
+        //input antrian yang status kurang dari 6 atau belum selesai
+        setDataAntrian(
+          response.data.data.filter(item => item.status_antrian < 6),
+        );
+      })
+      .catch(error => {
+        errorFetchWithFeedback(
+          error,
+          navigation.navigate,
+          2000,
+          () =>
+            logout(
+              dataUser.refreshToken,
+              setIsLoading,
+              dispatch,
+              logoutUserActionCreator,
+              navigation,
+            ),
+          () => authRefreshToken(dispatch, refreshTokenActionCreator, dataUser),
+        );
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+  const reFetchDataAntrianByPraktek = () => {
+    getAllAntrianByFilter(
+      queryString.stringify({
+        id_praktek: statePraktek.id_praktek,
+        tanggal_periksa: stateDate,
+      }),
+      dataUser.data.token,
+    )
+      .then(response => {
+        //input antrian yang status kurang dari 6 atau belum selesai
+        setDataAntrian(
+          response.data.data.filter(item => item.status_antrian < 6),
+        );
       })
       .catch(error => {
         errorFetchWithFeedback(
@@ -179,33 +300,140 @@ const DetailPoli = ({navigation, route}) => {
       });
   };
   useEffect(() => {
-    const socket = io(URL_BASE);
-    socket.on('server-addAntrian', () => {
-      fetchDataAntrianByPraktek();
+    socket().on('server-editAntrian', ({tanggal_periksa, id_praktek}) => {
+      if (
+        stateDate == tanggal_periksa &&
+        statePraktek.id_praktek == id_praktek
+      ) {
+        setSelectedAntrianAsal(prevState => prevState);
+        setSelectedItemAntrian(prevState => prevState);
+        setIsSocket(true);
+        // reFetchDataAntrianByPraktek();
+      }
     });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+
+    socket().on('server-addAntrian', ({tanggal_periksa, id_praktek}) => {
+      if (
+        stateDate == tanggal_periksa &&
+        statePraktek.id_praktek == id_praktek
+      ) {
+        setSelectedAntrianAsal(prevState => prevState);
+        setSelectedItemAntrian(prevState => prevState);
+        setIsSocket(true);
+        // reFetchDataAntrianByPraktek();
+      }
+    });
+    socket().on(
+      'server-postRequest',
+      ({user_id_asal, tanggal_periksa, id_praktek}) => {
+        if (
+          user_id_asal == dataUser.data.user_id &&
+          stateDate == tanggal_periksa &&
+          statePraktek.id_praktek == id_praktek
+        ) {
+          setSelectedAntrianAsal(null);
+          setSelectedItemAntrian('');
+          reFetchDataAntrianByPraktek();
+        }
+      },
+    );
+    socket().on(
+      'server-putRequest',
+      ({user_id_asal, user_id_tujuan, tanggal_periksa, id_praktek}) => {
+        if (
+          dataUser.data.user_id == user_id_asal &&
+          stateDate == tanggal_periksa &&
+          statePraktek.id_praktek == id_praktek
+        ) {
+          setSelectedAntrianAsal('');
+          setSelectedItemAntrian('');
+          reFetchDataAntrianByPraktek();
+        } else {
+          setSelectedAntrianAsal(prevState => prevState);
+          setSelectedItemAntrian(prevState => prevState);
+          setIsSocket(true);
+
+          // reFetchDataAntrianByPraktek();
+        }
+      },
+    );
 
     navigation.setOptions({
       title: route.params.title === '' ? 'Poli' : route.params.title,
     });
     setStatePraktek({id_praktek: route.params.idItem});
-    console.log(stateDate);
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchDataAntrianByPraktek();
+    });
+    return () => {
+      unsubscribe;
+      // socket.disconnect();
+    };
   }, []);
+
+  useEffect(() => {
+    if (isSocket) {
+      reFetchDataAntrianByPraktek();
+      setIsSocket(false);
+    }
+  }, [isSocket, selectedAntrianAsal, selectedItemAntrian]);
+
   useEffect(() => {
     if (statePraktek !== '') {
       fetchDataDetailPraktek();
       fetchDataAntrianByPraktek();
     }
   }, [statePraktek]);
+
+  //cek apakah user terdaftar pada antrian. apabila ada maka akan memunuculkan ajukan tukar
+  // jika tidak, maka memunculkan tombol daftar
+  useEffect(() => {
+    if (dataAntrian) {
+      const checkAntrian = dataAntrian.filter(
+        item =>
+          item.user_id == dataUser.data.user_id && item.status_antrian < 6,
+      );
+      console.log(checkAntrian);
+      console.log(dataAntrian);
+      setDataAntrianByCurrentUser(checkAntrian);
+      setUserRegistered(checkAntrian.length > 0);
+    }
+  }, [dataAntrian, dataUser.data.user_id]);
+  useEffect(() => {
+    if (selectedItemAntrian) {
+      console.log(selectedItemAntrian);
+      const checkAntrian = dataAntrianByCurrentUser.filter(
+        item => item.id_antrian == selectedItemAntrian,
+      );
+      setSelectedAntrianAsal(checkAntrian[0]);
+    }
+  }, [dataAntrianByCurrentUser, selectedItemAntrian]);
+
   return (
     <AlertNotificationRoot>
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.buttonDaftar}
-          onPress={onPressButtonDaftarHandler}>
-          <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
-            Daftar
-          </Text>
-        </TouchableOpacity>
+        <StatusBar
+          translucent
+          backgroundColor="white"
+          barStyle="dark-content"
+        />
+        {/* <Animated.View style={[actionBarStyle]}> */}
+        {dataUser.data.role === 3 ? (
+          <TouchableOpacity
+            style={styles.buttonDaftar}
+            onPress={onPressButtonDaftarHandler}>
+            <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
+              Daftar
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <></>
+        )}
+
+        {/* </Animated.View> */}
         <View style={styles.containerImage}>
           <ImageBackground
             source={require('../../../../../assets/images/foto_puskesmas.jpeg')}
@@ -214,6 +442,43 @@ const DetailPoli = ({navigation, route}) => {
               {height: '100%', width: '100%', resizeMode: 'cover'})
             }>
             <View style={styles.darkness}>
+              <View
+                style={{
+                  zIndex: 2,
+                  backgroundColor: 'white',
+                  width: '100%',
+                  position: 'absolute',
+                  top: 20,
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
+                  borderBottomLeftRadius: 40,
+                  borderBottomRightRadius: 40,
+                }}>
+                {dataUser.data.role === 3 ? (
+                  <>
+                    <Text style={{color: 'black'}}>Pilih Antrian Anda</Text>
+                    <Select
+                      selectedValue={selectedItemAntrian || ''}
+                      onValueChange={value => {
+                        setSelectedItemAntrian(value);
+                      }}>
+                      <Select.Item
+                        label="Belum dipilih"
+                        value={''}
+                        isDisabled
+                      />
+                      {dataAntrianByCurrentUser?.map(item => (
+                        <Select.Item
+                          label={`${item.nik}               ---            ${item.nomor_antrian}`}
+                          value={item.id_antrian}
+                        />
+                      ))}
+                    </Select>
+                  </>
+                ) : (
+                  <></>
+                )}
+              </View>
               <Text style={styles.title}>{route.params.title}</Text>
             </View>
           </ImageBackground>
@@ -222,7 +487,12 @@ const DetailPoli = ({navigation, route}) => {
         <View style={styles.innerContent}>
           <View style={styles.timeWrapper}>
             <Text
-              style={{textAlign: 'center', fontWeight: '500', fontSize: 15}}>
+              style={{
+                textAlign: 'center',
+                fontWeight: '500',
+                fontSize: 15,
+                color: 'black',
+              }}>
               Rata-rata Waktu Pelayanan :
               <Text style={{fontWeight: 'bold'}}>
                 {` ${dataPraktek[0]?.waktu_pelayanan || 0}`} Menit
@@ -232,16 +502,27 @@ const DetailPoli = ({navigation, route}) => {
           <ScrollView
             contentContainerStyle={{paddingBottom: 25}}
             style={{backgroundColor: 'white', marginTop: 15}}>
-            <Text style={{fontSize: 22}}>Dokter</Text>
+            {/* <Animated.ScrollView
+            scrollEventThrottle={16}
+            onScroll={scrollHandler}
+            style={{backgroundColor: 'white', marginTop: 15}}> */}
+            <Text style={{fontSize: 22, color: 'black'}}>Dokter</Text>
             <ListDokter data={dataPraktek} />
 
-            <Text style={{fontSize: 22, marginTop: 20}}>Antrian</Text>
+            <Text style={{fontSize: 22, marginTop: 20, color: 'black'}}>
+              Antrian
+            </Text>
+
             <ListAntrian
               isLoading={isLoading}
               data={dataAntrian}
+              selectedAntrianAsal={selectedAntrianAsal}
+              dataUser={dataUser}
+              dataAntrianByCurrentUser={dataAntrianByCurrentUser}
               onClickBtnHandler={onClickItemAntrianHandler}
             />
           </ScrollView>
+          {/* </Animated.ScrollView> */}
         </View>
         <ModalTukar
           showModalTukar={showModalTukar}
@@ -264,7 +545,7 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontWeight: '700',
-    marginTop: 20,
+    marginTop: -20,
   },
   containerImage: {
     height: 350,

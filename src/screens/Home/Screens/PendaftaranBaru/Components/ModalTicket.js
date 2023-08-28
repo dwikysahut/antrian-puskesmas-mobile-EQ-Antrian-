@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import QRCode from 'react-native-qrcode-svg';
-const ModalTicket = ({data, modalVisible, setModalVisible}) => {
+import {getFullDate, getFullTime} from '../../../../../utils/functionHelper';
+const ModalTicket = ({data, modalVisible, setModalVisible, onClickSubmit}) => {
   console.log(modalVisible);
   return (
     <Modal
@@ -39,10 +40,10 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
                 marginHorizontal: 15,
               }}>
               <Text style={{fontSize: 19, color: 'black', fontWeight: '600'}}>
-                Poli Umum
+                {data?.nama_poli}
               </Text>
               <Text style={{fontSize: 16, color: 'black', fontWeight: '600'}}>
-                22-10-2022
+                {data?.tanggal_periksa}
               </Text>
             </View>
             <View style={{alignItems: 'center'}}>
@@ -53,7 +54,7 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
                   fontWeight: '600',
                   textAlign: 'center',
                 }}>
-                Sisa Antrian : 2
+                Sisa Antrian : {data?.sisa_antrian}
               </Text>
               <Text
                 style={{
@@ -62,7 +63,7 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
                   fontWeight: 'bold',
                   textAlign: 'center',
                 }}>
-                A2-13
+                {data?.nomor_antrian}
               </Text>
 
               <Text
@@ -74,7 +75,14 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
                   textAlign: 'center',
                   marginTop: 8,
                 }}>
-                Estimasi dillayani : 11.00
+                Estimasi dilayani : &#177;{'  '}
+                {/* {getCalculatedTime(
+                          data?.estimasi_waktu_pelayanan,
+                          true,
+                        )}{' '} */}
+                {data?.waktu_pelayanan?.slice(0, -3).split(':').join('.') ||
+                  '-'}{' '}
+                WIB
               </Text>
               <Text
                 style={{
@@ -85,7 +93,11 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
                   textAlign: 'center',
                   marginVertical: 8,
                 }}>
-                Dipanggil dalam 24 Menit
+                {/* apabila tanggal hari ini dan tanggal kunjugan sama, maka muncul dipanggil dalam... */}
+                {new Date(data?.tanggal_periksa).toLocaleDateString('id') ==
+                new Date(getFullDate(null)).toLocaleDateString('id')
+                  ? `Dipanggil dalam ${data?.estimasi_waktu_pelayanan} menit`
+                  : ''}
               </Text>
             </View>
             <View
@@ -98,12 +110,16 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
               }}>
               <View />
               <TouchableOpacity
+                onPress={onClickSubmit}
                 style={{
                   padding: 16,
-                  backgroundColor: 'darkgreen',
+                  flex: 1,
+                  backgroundColor: 'black',
                   borderRadius: 5,
                 }}>
-                <Text style={{color: 'white'}}>Submit</Text>
+                <Text style={{color: 'white', textAlign: 'center'}}>
+                  Submit
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -2,33 +2,28 @@ import React from 'react';
 import {TouchableOpacity, View, StyleSheet, Text} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ModalTicket from './ModalTicket';
+import {
+  dateOnlyConvert,
+  renderStatusAntrianColor,
+} from '../../../../../utils/functionHelper';
+import {statusAntrian, statusKehadiran} from '../../../../../utils/DATA';
 const CardItem = ({
   data,
   isActive,
-  setDataDetailHandler,
+  onPressDetailHandler,
   setModalVisible,
   navigation,
+  batalHandler,
 }) => {
   return (
     <TouchableOpacity
       style={styles.containerItem}
       onPress={() => {
-        setModalVisible(true);
-        setDataDetailHandler(data);
+        onPressDetailHandler(data);
       }}>
       <View style={styles.inner}>
         <View style={styles.imageWrapper}>
-          <FontAwesome name="ticket" color="black" size={80} />
-        </View>
-        <View style={styles.textWrapper}>
-          <View style={styles.topTextWrapper}>
-            <Text style={{fontSize: 19, color: 'black', fontWeight: '600'}}>
-              {data.nama_poli}
-            </Text>
-            <Text style={{fontSize: 15, color: 'black', fontWeight: '600'}}>
-              {data.tgl_kunjungan}
-            </Text>
-          </View>
+          <FontAwesome name="ticket" color="black" size={60} />
           <Text
             style={{
               fontSize: 24,
@@ -36,8 +31,45 @@ const CardItem = ({
               fontWeight: 'bold',
               marginTop: 10,
             }}>
-            {data.nomor_antrian}
+            {data?.nomor_antrian}
           </Text>
+        </View>
+        <View style={styles.textWrapper}>
+          <View style={styles.topTextWrapper}>
+            <Text style={{fontSize: 16, color: 'black', fontWeight: '600'}}>
+              {data?.poli_tujuan}
+            </Text>
+            <Text
+              style={{
+                fontSize: 12,
+                color: 'black',
+                fontWeight: '600',
+              }}>
+              {dateOnlyConvert(data?.tanggal_periksa)}
+            </Text>
+          </View>
+          <View>
+            <Text
+              style={{
+                width: 200,
+                textAlign: 'center',
+
+                color:
+                  data?.status_hadir == 1
+                    ? 'darkgreen'
+                    : data?.status_hadir == 2
+                    ? 'darkred'
+                    : 'black',
+                padding: 3,
+                paddingHorizontal: 10,
+                borderRadius: 5,
+
+                fontSize: 15,
+              }}>
+              {statusKehadiran[data?.status_hadir] || '-'}
+            </Text>
+          </View>
+
           <View
             style={{
               flexDirection: 'row',
@@ -50,25 +82,44 @@ const CardItem = ({
                 width: 200,
                 textAlign: 'center',
                 color: 'white',
-                backgroundColor: data.id_status < 4 ? '#CFB53B' : 'darkgreen',
+                backgroundColor: renderStatusAntrianColor(data?.status_antrian),
                 padding: 3,
                 paddingHorizontal: 10,
                 borderRadius: 5,
 
                 fontSize: 15,
               }}>
-              {data.status}
+              {statusAntrian[data?.status_antrian - 1]}
             </Text>
           </View>
         </View>
       </View>
-      {isActive === 1 && data.id_status < 4 ? (
+      {isActive === 1 &&
+      data?.status_antrian >= 4 &&
+      data?.status_antrian < 6 ? (
         <TouchableOpacity
           style={styles.scanBtn}
           onPress={() =>
-            navigation.navigate('Scanner', {type: 'status_antrian'})
+            navigation.navigate('Scanner', {
+              data: {
+                id_antrian: data.id_antrian,
+                status_antrian: data.status_antrian,
+                status_hadir: data.status_hadir,
+                id_praktek: data.id_praktek,
+              },
+            })
           }>
           <Text style={{color: 'darkgreen'}}>Scan QR Code</Text>
+        </TouchableOpacity>
+      ) : (
+        <></>
+      )}
+      {isActive === 1 &&
+      (data?.status_antrian == 1 || data?.status_antrian == 4) ? (
+        <TouchableOpacity
+          style={styles.batalBtn}
+          onPress={() => batalHandler(data)}>
+          <Text style={{color: 'white'}}>Batalkan</Text>
         </TouchableOpacity>
       ) : (
         <></>
@@ -120,5 +171,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     borderColor: 'darkgreen',
+  },
+  batalBtn: {
+    padding: 8,
+    marginTop: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    alignItems: 'center',
+    borderColor: 'darkred',
+    backgroundColor: 'darkred',
   },
 });

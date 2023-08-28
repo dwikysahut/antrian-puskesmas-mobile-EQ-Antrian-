@@ -74,7 +74,7 @@ const EditProfile = props => {
         'No. Telepon terdiri dari 10 - 13 angka',
         val => val?.length >= 10 && val?.toString().length <= 13,
       )
-      .required('No. Kartu Keluarga harus diisi'),
+      .required('No. Telepon harus diisi'),
     email: yup.string().required('Email harus diisi'),
     jenis_kelamin: yup.string().required('Jenis Kelamin harus dipilih'),
     tanggal_lahir: yup.string().required('Tanggal lahir harus dipilih'),
@@ -158,6 +158,7 @@ const EditProfile = props => {
     };
     delete newFormData.user_id;
     delete newFormData.token;
+    delete newFormData.fcmToken;
     delete newFormData.refreshToken;
 
     await props

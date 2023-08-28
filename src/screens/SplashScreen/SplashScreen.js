@@ -1,6 +1,6 @@
 import {Text} from 'native-base';
-import React, {useEffect, useRef} from 'react';
-import {useSelector} from 'react-redux';
+import React, {useEffect, useRef, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   Image,
   View,
@@ -14,9 +14,15 @@ import WavyBackground from 'react-native-wavy-background';
 import styles from './style';
 import {color} from '../../utils/Color';
 
+import {getNotifikasiByUserActionCreator} from '../../redux/actions/notifikasiAction';
+
 const SplashScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const stateUser = useSelector(({reducerUser}) => reducerUser);
+  const stateNotifikasi = useSelector(
+    ({reducerNotifikasi}) => reducerNotifikasi,
+  );
   const deviceWidth = Dimensions.get('window').width;
 
   // const spinValue = useRef(new Animated.Value(0)).current;
@@ -25,38 +31,64 @@ const SplashScreen = () => {
 
   // First set up animation
 
-  Animated.timing(spinValue, {
-    toValue: 100,
-    duration: 3000,
-    easing: Easing.linear, // Easing is an additional import from react-native
-    useNativeDriver: true, // To make use of native driver for performance
-  }).start();
-
   // Next, interpolate beginning and end values (in this case 0 and 1)
   const spin = spinValue.interpolate({
     inputRange: [0, 100],
     outputRange: ['-180deg', '0deg'],
   });
-  Animated.timing(opacity, {
-    toValue: 100,
-    duration: 3000,
-    easing: Easing.linear, // Easing is an additional import from react-native
-    useNativeDriver: true, // To make use of native driver for performance
-  }).start();
+
   const fadeIn = spinValue.interpolate({
     inputRange: [0, 100],
     outputRange: [0, 1],
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (stateUser.data?.token?.length > 0) {
-        navigation.replace('Home');
-      } else {
-        navigation.replace('Intro');
-      }
-    }, 3000);
+    // if (stateUser.data?.token?.length > 0) {
+    dispatch(
+      getNotifikasiByUserActionCreator(
+        stateUser.data.user_id,
+        stateUser.data.token,
+      ),
+    );
+    // } else {
+    //   setTimeout(() => {
+    //     navigation.replace('Intro');
+    //   }, 3000);
+    // }
   }, []);
+
+  useEffect(() => {
+    if (stateNotifikasi.isFulfilled) {
+      Animated.timing(spinValue, {
+        toValue: 100,
+        duration: 3000,
+        easing: Easing.linear, // Easing is an additional import from react-native
+        useNativeDriver: true, // To make use of native driver for performance
+      }).start();
+      const timeout = setTimeout(() => {
+        navigation.replace('Home');
+      }, 3000);
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+    if (stateNotifikasi.isRejected) {
+      console.log('rejected');
+      Animated.timing(spinValue, {
+        toValue: 100,
+        duration: 3000,
+        easing: Easing.linear, // Easing is an additional import from react-native
+        useNativeDriver: true, // To make use of native driver for performance
+      }).start();
+      const timeout = setTimeout(() => {
+        navigation.replace('Intro');
+      }, 3000);
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [navigation, spinValue, stateNotifikasi]);
+
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
@@ -108,7 +140,7 @@ const SplashScreen = () => {
               width: '100%',
               resizeMode: 'contain',
               transform: [{rotate: spin}],
-              opacity: fadeIn,
+              opacity: 1,
             },
           ]}
         />

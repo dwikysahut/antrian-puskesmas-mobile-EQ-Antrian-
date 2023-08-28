@@ -23,6 +23,7 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -36,7 +37,6 @@ import ErrorForm from '../../../Components/ErrorForm';
 import moment from 'moment';
 import {registerUser} from '../../../utils/http';
 import {
-  dialogCallback,
   dialogFeedback,
   errorFetch,
   errorFetchWithFeedback,
@@ -101,12 +101,30 @@ const Register = ({navigation}) => {
       .required('Nama Kepala Keluarga harus diisi'),
   });
 
-  useEffect(() => {});
+  function handleBackButtonClick() {
+    navigation.goBack();
+    return true;
+  }
 
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+    return () => {
+      BackHandler.removeEventListener(
+        'hardwareBackPress',
+        handleBackButtonClick,
+      );
+    };
+  }, []);
   const onSubmitHandler = async (formData, {resetForm}) => {
     setIsLoading(true);
     try {
-      const response = await registerUser({...formData});
+      const response = await registerUser({
+        ...formData,
+        tanggal_lahir: dateOnlyConvert(formData.tanggal_lahir)
+          .split('/')
+          .reverse()
+          .join('-'),
+      });
       if (response.status == 201 || response.data.status == 201) {
         dialogFeedback(
           'Success',
@@ -200,6 +218,7 @@ const Register = ({navigation}) => {
                           variant="underlined"
                           placeholder="No. Telepon"
                           keyboardType="numeric"
+                          maxLength={13}
                           value={values.no_telepon}
                           onChangeText={handleChange('no_telepon')}
                           focusOutlineColor="green.700"
@@ -321,7 +340,11 @@ const Register = ({navigation}) => {
                         <DatePicker
                           modal
                           open={isOpenDate}
-                          date={new Date()}
+                          date={
+                            values.tanggal_lahir
+                              ? new Date(values.tanggal_lahir)
+                              : new Date()
+                          }
                           mode="date"
                           onConfirm={date => {
                             setIsOpenDate(false);

@@ -79,15 +79,20 @@ const UploadImage = ({
         <View style={styles.modalView}>
           <Text style={styles.textTitle}>Upload Foto</Text>
 
-          <View style={{justifyContent: 'center'}}>
+          <View style={{justifyContent: 'center', color: 'black'}}>
             {image?.fileName ? (
-              <Text>{image.fileName}</Text>
+              <Text style={{color: 'black'}}>{image.fileName}</Text>
             ) : (
-              <Text>Tidak ada foto dipilih</Text>
+              <Text style={{color: 'black'}}>Tidak ada foto dipilih</Text>
             )}
             {progress > 0 ? (
               <View style={{marginVertical: 10}}>
-                <Text style={{marginVertical: 4, fontWeight: 'bold'}}>
+                <Text
+                  style={{
+                    marginVertical: 4,
+                    fontWeight: 'bold',
+                    color: 'black',
+                  }}>
                   Sedang Mengunggah....
                 </Text>
                 <ProgressBar
@@ -105,7 +110,9 @@ const UploadImage = ({
             bordered
             style={styles.buttonImage}
             onPress={() => setShowModalPicker(true)}>
-            <Text style={{textAlign: 'center'}}>Pilih Foto</Text>
+            <Text style={{textAlign: 'center', color: 'black'}}>
+              Pilih Foto
+            </Text>
           </TouchableOpacity>
 
           {/* {this.state.isLoading ? (
@@ -149,12 +156,16 @@ const UploadImage = ({
             <TouchableOpacity
               style={styles.chooserButton}
               onPress={cameraHandler}>
-              <Text style={{textAlign: 'center'}}>Ambil dari Kamera</Text>
+              <Text style={{textAlign: 'center', color: 'black'}}>
+                Ambil dari Kamera
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.chooserButton}
               onPress={galleryHandler}>
-              <Text style={{textAlign: 'center'}}>Ambil dari Galeri</Text>
+              <Text style={{textAlign: 'center', color: 'black'}}>
+                Ambil dari Galeri
+              </Text>
             </TouchableOpacity>
             <View
               style={{

@@ -116,52 +116,59 @@ const FormProfile = ({
             <ScrollView>
               <Stack space={3} w="100%" maxW="350px" mx="auto">
                 <FormControl isInvalid={!isValid}>
-                  <Input
-                    variant="underlined"
-                    placeholder="User ID"
-                    keyboardType="numeric"
-                    _disabled="true"
-                    isDisabled="true"
-                    editable={false}
-                    onChangeText={handleChange('user_id')}
-                    selectTextOnFocus={false}
-                    value={values.user_id}
-                    InputLeftElement={
-                      <Icon
-                        as={<FontAwesome name="id-card-o" />}
-                        size={6}
-                        mr="2"
-                        textAlign="center"
-                        color="green.700"
-                      />
-                    }
-                    focusOutlineColor="green.700"
-                  />
-                  <Text style={{fontSize: 13, color: 'darkgrey'}}>
-                    {values.user_id?.length > 0 ? values.user_id.length : 0}/16
-                  </Text>
-                  {errors.user_id && <ErrorForm text={errors.user_id} />}
+                  <Pressable>
+                    <Input
+                      variant="underlined"
+                      placeholder="User ID"
+                      keyboardType="numeric"
+                      _disabled="true"
+                      isDisabled="true"
+                      editable={false}
+                      onChangeText={handleChange('user_id')}
+                      selectTextOnFocus={false}
+                      value={values.user_id}
+                      InputLeftElement={
+                        <Icon
+                          as={<FontAwesome name="id-card-o" />}
+                          size={6}
+                          mr="2"
+                          textAlign="center"
+                          color="green.700"
+                        />
+                      }
+                      focusOutlineColor="green.700"
+                    />
+                    <Pressable>
+                      <Text style={{fontSize: 13, color: 'darkgrey'}}>
+                        {values.user_id?.length > 0 ? values.user_id.length : 0}
+                        /16
+                      </Text>
+                    </Pressable>
+                    {errors.user_id && <ErrorForm text={errors.user_id} />}
+                  </Pressable>
                 </FormControl>
                 <FormControl isInvalid={!isValid}>
-                  <Input
-                    variant="underlined"
-                    placeholder="Email"
-                    keyboardType="email-address"
-                    onChangeText={handleChange('email')}
-                    value={values.email}
-                    isDisabled
-                    InputLeftElement={
-                      <Icon
-                        as={<AntDesign name="mail" />}
-                        size={6}
-                        mr="2"
-                        color="green.700"
-                      />
-                    }
-                    focusOutlineColor="green.700"
-                  />
+                  <Pressable>
+                    <Input
+                      variant="underlined"
+                      placeholder="Email"
+                      keyboardType="email-address"
+                      onChangeText={handleChange('email')}
+                      value={values.email}
+                      isDisabled
+                      InputLeftElement={
+                        <Icon
+                          as={<AntDesign name="mail" />}
+                          size={6}
+                          mr="2"
+                          color="green.700"
+                        />
+                      }
+                      focusOutlineColor="green.700"
+                    />
 
-                  {errors.email && <ErrorForm text={errors.email} />}
+                    {errors.email && <ErrorForm text={errors.email} />}
+                  </Pressable>
                 </FormControl>
 
                 <FormControl isInvalid={!isValid}>
@@ -234,55 +241,61 @@ const FormProfile = ({
                     }
                     placeholder="Password"
                   />
-                  <Text style={{color: 'brown', fontSize: 12}}>
-                    *
-                    <Text
-                      style={{
-                        color: 'brown',
-                        fontSize: 12,
-                        fontWeight: 'bold',
-                      }}>
-                      Password
-                    </Text>{' '}
-                    diisi jika ingin merubah password
-                  </Text>
+                  <Pressable>
+                    <Text style={{color: 'brown', fontSize: 12}}>
+                      *
+                      <Text
+                        style={{
+                          color: 'brown',
+                          fontSize: 12,
+                          fontWeight: 'bold',
+                        }}>
+                        Password
+                      </Text>{' '}
+                      diisi jika ingin merubah password
+                    </Text>
+                  </Pressable>
                   {errors.password && <ErrorForm text={errors.password} />}
                 </FormControl>
 
                 <FormControl isInvalid={!isValid}>
-                  <Text>Nomor Kartu Keluarga</Text>
-                  <Input
-                    variant="underlined"
-                    placeholder="Nomor Kartu Keluarga"
-                    keyboardType="numeric"
-                    _disabled="true"
-                    isDisabled="true"
-                    onChangeText={handleChange('no_kk')}
-                    editable={false}
-                    selectTextOnFocus={false}
-                    value={values.no_kk}
-                    InputLeftElement={
-                      <Icon
-                        as={<AntDesign name="idcard" />}
-                        size={6}
-                        mr="2"
-                        color="green.700"
-                      />
-                    }
-                    focusOutlineColor="green.700"
-                  />
-                  <Text style={{fontSize: 13, color: 'darkgrey'}}>
-                    {values.no_kk?.length > 0 ? values.no_kk.length : 0}/16
-                  </Text>
-                  {errors.no_kk && <ErrorForm text={errors.no_kk} />}
+                  <Pressable>
+                    <Text>Nomor Kartu Keluarga</Text>
+                    <Input
+                      variant="underlined"
+                      placeholder="Nomor Kartu Keluarga"
+                      keyboardType="numeric"
+                      isDisabled="true"
+                      onChangeText={handleChange('no_kk')}
+                      editable={false}
+                      value={values.no_kk}
+                      InputLeftElement={
+                        <Icon
+                          as={<AntDesign name="idcard" />}
+                          size={6}
+                          mr="2"
+                          color="green.700"
+                        />
+                      }
+                      focusOutlineColor="green.700"
+                    />
+                    <Text style={{fontSize: 13, color: 'darkgrey'}}>
+                      {values.no_kk?.length > 0 ? values.no_kk.length : 0}/16
+                    </Text>
+                    {errors.no_kk && <ErrorForm text={errors.no_kk} />}
+                  </Pressable>
                 </FormControl>
                 <FormControl isInvalid={!isValid}>
                   <View style={{marginTop: 10}}>
-                    <Text style={{marginBottom: 1}}>Nama Kepala Keluarga</Text>
+                    <Pressable>
+                      <Text style={{marginBottom: 1}}>
+                        Nama Kepala Keluarga
+                      </Text>
+                    </Pressable>
                     <Input
                       variant="underlined"
                       placeholder="Nama Kepala Keluarga"
-                      keyboardType="numeric"
+                      keyboardType="default"
                       onChangeText={handleChange('kepala_keluarga')}
                       value={values.kepala_keluarga}
                       InputLeftElement={
@@ -303,61 +316,64 @@ const FormProfile = ({
                   )}
                 </FormControl>
                 <View style={{marginTop: 10}}>
-                  <Text style={{marginBottom: 5}}>Tanggal Lahir</Text>
-                  <View style={{flexDirection: 'row'}}>
-                    <Icon
-                      as={<FontAwesome name="birthday-cake" />}
-                      size={6}
-                      mr="2"
-                      color="green.700"
-                    />
+                  <Pressable>
+                    <Text style={{marginBottom: 5}}>Tanggal Lahir</Text>
+                    <View style={{flexDirection: 'row'}}>
+                      <Icon
+                        as={<FontAwesome name="birthday-cake" />}
+                        size={6}
+                        mr="2"
+                        color="green.700"
+                      />
 
-                    <View
-                      style={{
-                        alignSelf: 'flex-end',
-                        flex: 1,
-                      }}>
-                      {/* //date */}
-                      <TouchableOpacity onPress={() => setIsOpenDate(true)}>
-                        <View style={{marginLeft: 5}}>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              width: '100%',
-                              justifyContent: 'space-between',
-                            }}>
+                      <View
+                        style={{
+                          alignSelf: 'flex-end',
+                          flex: 1,
+                        }}>
+                        {/* //date */}
+                        <TouchableOpacity onPress={() => setIsOpenDate(true)}>
+                          <View style={{marginLeft: 5}}>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                width: '100%',
+                                justifyContent: 'space-between',
+                              }}>
+                              <Text
+                                style={{
+                                  marginBottom: 10,
+                                  marginLeft: 10,
+                                  alignSelf: 'flex-start',
+                                }}
+                                color="muted.400">
+                                {new Date(
+                                  values.tanggal_lahir,
+                                ).toDateString() === new Date().toDateString()
+                                  ? 'belum dipilih'
+                                  : dateOnlyConvert(values.tanggal_lahir)}
+                                {/* values.tanggal_lahir} */}
+                              </Text>
+                              <Icon
+                                as={<MaterialIcons name={'date-range'} />}
+                                size={8}
+                                mr="2"
+                                color="green.700"
+                              />
+                            </View>
                             <Text
                               style={{
-                                marginBottom: 10,
-                                marginLeft: 10,
-                                alignSelf: 'flex-start',
+                                position: 'absolute',
+                                marginTop: 15,
                               }}
-                              color="muted.400">
-                              {new Date(values.tanggal_lahir).toDateString() ===
-                              new Date().toDateString()
-                                ? 'belum dipilih'
-                                : dateOnlyConvert(values.tanggal_lahir)}
-                              {/* values.tanggal_lahir} */}
+                              color="muted.300">
+                              ____________________________________________
                             </Text>
-                            <Icon
-                              as={<MaterialIcons name={'date-range'} />}
-                              size={8}
-                              mr="2"
-                              color="green.700"
-                            />
                           </View>
-                          <Text
-                            style={{
-                              position: 'absolute',
-                              marginTop: 15,
-                            }}
-                            color="muted.300">
-                            ____________________________________________
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                  </View>
+                  </Pressable>
                 </View>
                 <FormControl isInvalid={!isValid}>
                   <Text>Jenis Kelamin</Text>

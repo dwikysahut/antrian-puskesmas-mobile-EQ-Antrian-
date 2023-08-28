@@ -24,20 +24,35 @@ import ShimmerItemAntrian from './ShimmerItemAntrian';
 
 // import Icon from 'react-native-vector-icons/Ionicons';
 
-const ListAntrian = ({isLoading, data, onClickBtnHandler}) => {
+const ListAntrian = ({
+  isLoading,
+  data,
+  dataUser,
+  onClickBtnHandler,
+  dataAntrianByCurrentUser,
+  selectedAntrianAsal,
+}) => {
+  const isFirst = selectedAntrianAsal?.id_antrian == data[0]?.id_antrian;
   return (
     <View style={styles.container}>
-      {isLoading
-        ? [...Array(3).keys()].map(item => <ShimmerItemAntrian />)
-        : data
-            .filter(item => item.status_antrian < 6)
-            .map(item => (
-              <ItemAntrian
-                data={item}
-                key={item.id_antrian}
-                onClickBtnHandler={onClickBtnHandler}
-              />
-            ))}
+      {isLoading ? (
+        [...Array(3).keys()].map(item => <ShimmerItemAntrian />)
+      ) : data.length > 0 ? (
+        data.map((item, i) => (
+          <ItemAntrian
+            data={item}
+            index={i}
+            isFirst={isFirst}
+            key={item.id_antrian}
+            dataUser={dataUser}
+            selectedAntrianAsal={selectedAntrianAsal}
+            dataAntrianByCurrentUser
+            onClickBtnHandler={onClickBtnHandler}
+          />
+        ))
+      ) : (
+        <Text style={{color: 'black'}}>Tidak ada Antrian aktif</Text>
+      )}
     </View>
   );
 };

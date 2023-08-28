@@ -11,7 +11,7 @@ import {
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import QRCode from 'react-native-qrcode-svg';
 import {dateOnlyConvert} from '../../../../../../utils/functionHelper';
-const ModalTicket = ({data, modalVisible, setModalVisible}) => {
+const ModalTicket = ({data, modalVisible, setModalVisible, onCetakHandler}) => {
   let logoFromFile = require('../../../../../../../assets/images/EQ-Puskesmas.png');
   return (
     <Modal
@@ -67,7 +67,16 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
                 {data?.nomor_antrian}
               </Text>
 
-              <QRCode value={data?.id_antrian} size={150} />
+              <QRCode
+                value={JSON.stringify({
+                  data: {
+                    id_antrian: data?.id_antrian,
+                    status_antrian: data?.status_antrian,
+                    status_hadir: data?.status_hadir,
+                  },
+                })}
+                size={150}
+              />
               <Text
                 style={{
                   fontSize: 18,
@@ -77,7 +86,7 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
                   textAlign: 'center',
                   marginTop: 8,
                 }}>
-                Estimasi dillayani : 11.00
+                Estimasi dillayani : {data?.waktu_pelayanan}
               </Text>
               <Text
                 style={{
@@ -101,6 +110,7 @@ const ModalTicket = ({data, modalVisible, setModalVisible}) => {
               }}>
               <View />
               <TouchableOpacity
+                onPress={onCetakHandler}
                 style={{
                   padding: 16,
                   backgroundColor: 'darkgreen',

@@ -11,6 +11,8 @@ import {
   Button,
   Image,
   Platform,
+  PermissionsAndroid,
+  Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 // import storage from '../../../../utils/firebaseConfig';
@@ -39,6 +41,7 @@ import {
   logoutUserActionCreator,
   refreshTokenActionCreator,
 } from '../../../../redux/actions/userAction';
+import useCameraPermission from '../../../../utils/useCameraPermission';
 // import Icon from 'react-native-vector-icons/Ionicons';
 
 const DetailKartuIdentitas = props => {
@@ -51,6 +54,7 @@ const DetailKartuIdentitas = props => {
   const [isLoading, setIsLoading] = useState(false);
   const [showModalPicker, setShowModalPicker] = useState(false);
   const navigation = useNavigation();
+  const {requestCameraPermission} = useCameraPermission();
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -59,11 +63,21 @@ const DetailKartuIdentitas = props => {
   }, []);
 
   const uploadImageHandler = async () => {
-    console.log(imageFile);
+    if (!imageFile.uri) {
+      return dialogFeedback(
+        'Perhatian',
+        'Tidak ada Foto Dipilih',
+        true,
+        ALERT_TYPE.DANGER,
+        3000,
+        () => {},
+        null,
+      );
+    }
     const {uri} = imageFile;
-    const filename = uri.substring(uri.lastIndexOf('/') + 1);
-    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
 
+    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    //menjadikan nama file foto-kartu-identitas-NIK_PASIEN
     const storageRef = storage().ref(
       `/images/foto-kartu-identitas-${item.nik}`,
     );
@@ -73,10 +87,6 @@ const DetailKartuIdentitas = props => {
     task.on(
       'state_changed',
       snapshot => {
-        // setTransferred(
-        //   Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000,
-        // );
-
         console.log(snapshot);
 
         setProgress(
@@ -96,15 +106,17 @@ const DetailKartuIdentitas = props => {
       },
       snapshot => {
         if (snapshot.state == 'success') {
+          //menyimpan URL pada Database
           saveToDB(storageRef);
         }
       },
     );
   };
   const saveToDB = async storageRef => {
+    //mendapatkan download URL dari foto yang sudah diupload
     storageRef.getDownloadURL().then(async downloadUrl => {
-      console.log('proses put');
       try {
+        //proses update data pada database
         const response = await putKartuIdentitasPasien(
           item.nik,
           {
@@ -125,6 +137,10 @@ const DetailKartuIdentitas = props => {
             () => setShowModal(false),
             null,
           );
+          setItem(prevState => ({
+            ...prevState,
+            url_foto_kartu_identitas: downloadUrl,
+          }));
         }
         setImageFile({});
       } catch (error) {
@@ -155,31 +171,60 @@ const DetailKartuIdentitas = props => {
     setImageFile({});
     setShowModal(!showModal);
   };
+
   const cameraHandler = async () => {
     const options = {
       noData: true,
       skipBackup: true,
       path: 'images',
     };
-    launchCamera(options, response => {
-      setShowModalPicker(false);
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-        alert(response.customButton);
-      } else {
-        const source = {uri: response.uri};
-        console.log('response', JSON.stringify(response));
-        setImageFile({
-          fileName: response.assets[0].fileName,
-          size: response.assets[0].fileSize,
-          uri: response.assets[0].uri,
-        });
-      }
-    });
+
+    PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.CAMERA)
+      .then(response => {
+        if (response === true) {
+          //Open scanner
+          launchCamera(options, response => {
+            setShowModalPicker(false);
+
+            if (response.didCancel) {
+              console.log('User cancelled image picker');
+            } else if (response.error) {
+              console.log('ImagePicker Error: ', response.error);
+            } else if (response.customButton) {
+              console.log('User tapped custom button: ', response.customButton);
+              // alert(response.customButton);
+            } else {
+              if (response.assets[0].fileSize / 1024 / 1024 > 3) {
+                dialogFeedback(
+                  'Oops..',
+                  'Ukuran File tidak boleh lebih dari 3 MB',
+                  true,
+                  ALERT_TYPE.DANGER,
+                  3000,
+                  () => setShowModal(false),
+                  null,
+                );
+                return;
+              }
+              const source = {uri: response.uri};
+              console.log('response', JSON.stringify(response));
+              setImageFile({
+                fileName: response.assets[0].fileName,
+                size: response.assets[0].fileSize,
+                uri: response.assets[0].uri,
+              });
+            }
+          });
+        } else if (response === false) {
+          // Alert.alert('Aktifkan izin kamera di pengaturan.');
+          requestCameraPermission();
+        }
+      })
+      .catch(error => {
+        // Alert.alert('Aktifkan izin kamera di pengaturan');
+        requestCameraPermission();
+        console.log(error);
+      });
   };
   const galleryHandler = async () => {
     const options = {
@@ -195,8 +240,20 @@ const DetailKartuIdentitas = props => {
         console.log('ImagePicker Error: ', response.error);
       } else if (response.customButton) {
         console.log('User tapped custom button: ', response.customButton);
-        alert(response.customButton);
+        // alert(response.customButton);
       } else {
+        if (response.assets[0].fileSize / 1024 / 1024 > 3) {
+          dialogFeedback(
+            'Oops..',
+            'Ukuran File tidak boleh lebih dari 3 MB',
+            true,
+            ALERT_TYPE.DANGER,
+            3000,
+            () => setShowModal(false),
+            null,
+          );
+          return;
+        }
         const source = {uri: response.uri};
         console.log('response', JSON.stringify(response));
         setImageFile({

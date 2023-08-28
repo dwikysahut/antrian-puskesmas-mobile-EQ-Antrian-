@@ -71,13 +71,15 @@ const ModalTicketBaru = ({
                     onValueChange={value => {
                       setFieldValue('id_praktek', value);
                     }}>
-                    {poliValue.map(item => (
-                      <Select.Item
-                        key={item.id_praktek}
-                        label={`${item.kode_poli}-${item.nama_poli}`}
-                        value={item.id_praktek}
-                      />
-                    ))}
+                    {poliValue
+                      .filter(item => item.status_operasional == 1)
+                      .map(item => (
+                        <Select.Item
+                          key={item.id_praktek}
+                          label={`${item.kode_poli}-${item.nama_poli}`}
+                          value={item.id_praktek}
+                        />
+                      ))}
                   </Select>
                   {errors.id_praktek && <ErrorForm text={errors.id_praktek} />}
                 </FormControl>

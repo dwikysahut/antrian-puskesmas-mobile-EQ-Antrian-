@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     fontSize: 20,
+    color: 'black',
   },
   headerComponent: {
     justifyContent: 'flex-end',

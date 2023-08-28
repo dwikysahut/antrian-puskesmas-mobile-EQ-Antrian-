@@ -14,7 +14,13 @@ const enhancer = applyMiddleware(promiseMiddleware, logger);
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  blacklist: ['reducerPraktek', '_persist'],
+  blacklist: [
+    'reducerPraktek',
+    'reducerPasien',
+    // 'reducerNotifikasi',
+    'reducerKartuKeluarga',
+    '_persist',
+  ],
 };
 
 const persistedReducer = persistReducer(persistConfig, allReducers);

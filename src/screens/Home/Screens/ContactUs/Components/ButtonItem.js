@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-const ButtonItem = ({name, icon}) => {
+const ButtonItem = ({name, icon, onClick}) => {
   return (
-    <TouchableOpacity style={styles.itemWrapper}>
+    <TouchableOpacity style={styles.itemWrapper} onPress={onClick}>
       <Text style={styles.menuText}>{name}</Text>
       <FontAwesome name={icon} size={30} color="green" />
     </TouchableOpacity>

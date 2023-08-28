@@ -1,17 +1,24 @@
 /* eslint-disable default-param-last */
 /* eslint-disable default-case */
+import {URL_BASE} from '../../utils/CONSTANT';
+import {getFcmToken} from '../../utils/functionHelper';
 import {
   pending,
   rejected,
   fulfilled,
   loginUserAction,
   getUserByIdAction,
+  storeFcmToken,
   logoutUserAction,
   refreshTokenAction,
   putUserAction,
   getUserProfileAction,
 } from '../actions/actionTypes';
-
+import {
+  runSocketDisconnect,
+  socketDisconnect,
+  socketInit,
+} from '../../context/socket';
 const initialValue = {
   data: {},
   isLoading: false,
@@ -21,7 +28,8 @@ const initialValue = {
   message: '',
   isRejectedRefreshToken: false,
 };
-
+import {io} from 'socket.io-client';
+const socket = socketInit();
 const dataUser = (prevState = initialValue, action) => {
   switch (action.type) {
     case loginUserAction + pending:
@@ -77,6 +85,14 @@ const dataUser = (prevState = initialValue, action) => {
         message: '',
       };
     case logoutUserAction + fulfilled:
+      // socket.emit(
+      //   'client-logout',
+      //   prevState.data.user_id,
+      //   prevState.data.fcmToken,
+      // );
+      // socket.disconnect();
+      runSocketDisconnect(prevState.data.user_id, prevState.data.fcmToken);
+
       return {
         ...prevState,
         isLoading: false,
@@ -200,7 +216,15 @@ const dataUser = (prevState = initialValue, action) => {
 
         message: action.payload.data.message,
       };
-
+    case storeFcmToken:
+      console.log(action.payload);
+      return {
+        ...prevState,
+        data: {
+          ...prevState.data,
+          fcmToken: action.payload,
+        },
+      };
     default:
       return {
         ...prevState,

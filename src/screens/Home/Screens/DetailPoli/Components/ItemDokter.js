@@ -22,7 +22,13 @@ const ItemDokter = ({data}) => {
   return (
     <View style={styles.container}>
       <Fontisto name="doctor" size={25} color="black" />
-      <Text style={{marginStart: 5, fontWeight: '500', fontSize: 13}}>
+      <Text
+        style={{
+          marginStart: 5,
+          fontWeight: '500',
+          fontSize: 13,
+          color: 'black',
+        }}>
         {data.nama_dokter}
       </Text>
     </View>
@@ -32,6 +38,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
     flexDirection: 'row',
+
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,

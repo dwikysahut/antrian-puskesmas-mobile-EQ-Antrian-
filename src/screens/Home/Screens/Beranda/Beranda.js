@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
 import {Image, View, Dimensions, Text, ScrollView} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AppIntroSlider from 'react-native-app-intro-slider';
@@ -15,9 +15,10 @@ import {getMonthName, dateListGenerate} from '../../../../utils/DateUtils';
 import ListPoli from './Components/ListPoli';
 import {ImageSlider} from 'react-native-image-slider-banner';
 import WavyBackground from 'react-native-wavy-background';
+import ActivityLoaderComponent from '../../../Components/ActivityLoaderComponent';
 import {getAllAntrian, getAntrianByPrakek} from '../../../../utils/http';
 import queryString from 'query-string';
-import {connect, useDispatch} from 'react-redux';
+import {connect, useDispatch, useSelector} from 'react-redux';
 
 import {io} from 'socket.io-client';
 import {URL_BASE} from '../../../../utils/CONSTANT';
@@ -27,9 +28,15 @@ import {
   logout,
 } from '../../../../utils/functionHelper';
 import {
+  getNotifikasiByUserActionCreator,
+  updateNotifikasiByUserActionCreator,
+} from '../../../../redux/actions/notifikasiAction';
+import {
   logoutUserActionCreator,
   refreshTokenActionCreator,
 } from '../../../../redux/actions/userAction';
+import {SocketContext} from '../../../../context/socket';
+
 // const DATA = [
 //   {
 //     id: '123141242',
@@ -61,12 +68,16 @@ import {
 const Beranda = props => {
   // console.log(props);
   // const navigation = useNavigation();
+  const socket = useContext(SocketContext);
+  const dataUser = useSelector(({reducerUser}) => reducerUser.data);
   const dispatch = useDispatch();
   const [dateValue, setDateValue] = useState({
     date: new Date().getDate(),
-    month: new Date().getMonth(),
+    month: new Date().getMonth() + 1,
     monthName: getMonthName(new Date().getMonth()),
     year: new Date().getFullYear(),
+    isSocket: false,
+    isSubmit: false,
   });
   const [dataAntrian, setDataAntrian] = useState([]);
   const [dateListValue, setDateListValue] = useState([]);
@@ -76,13 +87,17 @@ const Beranda = props => {
 
   const onChangeDateHandler = useCallback(
     item => {
-      setDateValue(item);
+      console.log(item);
+      setDateValue(prevState => ({...prevState, ...item, isSubmit: true}));
     },
     [setDateValue, dateValue],
   );
 
   const fetchDataAntrianByPraktek = useCallback(async () => {
+    // setIsLoading(true);
+    console.log('fetch');
     const newDateFormatted = `${dateValue.year}-${dateValue.month}-${dateValue.date}`;
+    console.log(newDateFormatted);
     getAntrianByPrakek(queryString.stringify({date: newDateFormatted}))
       .then(response => {
         console.log(response.data.data);
@@ -109,25 +124,86 @@ const Beranda = props => {
               props.dataUser,
             ),
         );
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, [dateValue]);
   useEffect(() => {
-    const socket = io(URL_BASE);
-    socket.on('server-addAntrian', () => {
-      fetchDataAntrianByPraktek();
+    socket().on('server-addAntrian', ({result, tanggal_periksa}) => {
+      console.log(result);
+      console.log(tanggal_periksa);
+      setDateValue(prevState => ({
+        ...prevState,
+        isSocket: true,
+        socketTgl: tanggal_periksa,
+      }));
     });
-    socket.on('server-editAntrian', () => {
-      fetchDataAntrianByPraktek();
+    socket().on('server-editAntrian', ({result, tanggal_periksa}) => {
+      setDateValue(prevState => ({
+        ...prevState,
+        isSocket: true,
+        socketTgl: tanggal_periksa,
+      }));
     });
-
     setDateListValue(dateListGenerate());
     fetchDataAntrianByPraktek();
+
+    // return () => socket.disconnect();
   }, []);
+
   useEffect(() => {
-    fetchDataAntrianByPraktek();
+    if (dateValue.isSubmit) {
+      console.log('fetch berubah');
+
+      fetchDataAntrianByPraktek();
+      setDateValue(prevState => ({...prevState, isSubmit: false}));
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateValue.isSubmit]);
+  useEffect(() => {
+    if (dateValue.isSocket) {
+      console.log(dateValue);
+
+      const fullDate = `${dateValue.year}-${
+        dateValue.month.toString().length < 2
+          ? `0${dateValue.month}`
+          : `${dateValue.month}`
+      }-${
+        dateValue.date.toString().length < 2
+          ? `0${dateValue.date}`
+          : `${dateValue.date}`
+      }`;
+      const dateSocketArr = dateValue.socketTgl?.split('-');
+      const fullDateSocket = `${dateSocketArr[0]}-${
+        dateSocketArr[1].toString().length < 2
+          ? `0${dateSocketArr[1]}`
+          : `${dateSocketArr[1]}`
+      }-${
+        dateSocketArr[2].toString().length < 2
+          ? `0${dateSocketArr[2]}`
+          : `${dateSocketArr[2]}`
+      }`;
+
+      console.log(fullDate);
+      console.log(fullDateSocket);
+      if (fullDate == fullDateSocket) {
+        console.log('fetch berubah2');
+        fetchDataAntrianByPraktek();
+      }
+      setDateValue(prevState => ({
+        ...prevState,
+        isSocket: false,
+        socketTgl: '',
+      }));
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateValue]);
+  const onPressRefreshHandler = () => {
+    fetchDataAntrianByPraktek();
+  };
   const onPressItemHandler = (id, title) => {
     const newDateFormatted = `${dateValue.year}-${dateValue.month}-${dateValue.date}`;
 
@@ -162,7 +238,7 @@ const Beranda = props => {
           zIndex: 0,
         }}
       /> */}
-      <CustomHeader title="Beranda" />
+      <CustomHeader title="Beranda" onPressHandler={onPressRefreshHandler} />
       {/* <Text style={{fontSize: 24, fontWeight: 'bold', marginVertical: 8}}>
         Selamat Datang di Aplikasi Antrian Puskesmas Gribig
       </Text> */}
@@ -197,18 +273,26 @@ const Beranda = props => {
             }}
           />
         </View>
-
-        <View style={styles.inner}>
-          <DateListBar
-            dateValue={dateValue}
-            dateListValue={dateListValue}
-            onChangeDateHandler={onChangeDateHandler}
-          />
-          <ListPoli
-            data={dataAntrian}
-            onPressItemHandler={onPressItemHandler}
-          />
-        </View>
+        {isLoading ? (
+          <View
+            style={{
+              marginTop: '30%',
+            }}>
+            <ActivityLoaderComponent />
+          </View>
+        ) : (
+          <View style={styles.inner}>
+            <DateListBar
+              dateValue={dateValue}
+              dateListValue={dateListValue}
+              onChangeDateHandler={onChangeDateHandler}
+            />
+            <ListPoli
+              data={dataAntrian}
+              onPressItemHandler={onPressItemHandler}
+            />
+          </View>
+        )}
       </ScrollView>
     </View>
   );

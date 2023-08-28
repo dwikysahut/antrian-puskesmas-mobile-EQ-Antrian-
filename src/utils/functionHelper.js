@@ -1,11 +1,12 @@
 import {errorType} from './CONSTANT';
-
+import messaging from '@react-native-firebase/messaging';
 import {
   ALERT_TYPE,
   Dialog,
   AlertNotificationRoot,
   Toast,
 } from 'react-native-alert-notification';
+import {Toast as Toast2} from 'react-native-toast-message/lib/src/Toast';
 import {Alert} from 'react-native';
 
 const showToast = (type, title, textBody) => {
@@ -15,7 +16,43 @@ const showToast = (type, title, textBody) => {
     textBody: textBody,
   });
 };
+const getFcmToken = async () => {
+  try {
+    await messaging().registerDeviceForRemoteMessages();
+    const token = await messaging().getToken();
+    return token;
+  } catch (error) {
+    return null;
+  }
+};
+const showToast2 = (type, title, textBody) => {
+  if (type.toLowerCase() == 'danger') {
+    type = 'error';
+  }
+  if (type.toLowerCase() == 'warning') {
+    type = 'info';
+  }
 
+  Toast2.show({
+    type: type.toLowerCase(),
+    text1: title,
+    text2: textBody,
+    topOffset: 10,
+  });
+};
+const renderStatusAntrianColor = value => {
+  if (value < 4) {
+    return '#CFB53B';
+  } else if (value == 4) {
+    return 'black';
+  } else if (value == 5) {
+    return 'black';
+  } else if (value == 6) {
+    return 'darkgreen';
+  } else {
+    return 'darkred';
+  }
+};
 const alertConfirmation = (title, fnAction) => {
   return Alert.alert('Konfirmasi', title, [
     {
@@ -31,15 +68,47 @@ const alertConfirmation = (title, fnAction) => {
     },
   ]);
 };
-const dialogCallback = (title, body, isShow, type, callback = null) => {
+const getFullTime = () => {
+  const date = new Date();
+  return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+};
+const getFullTimeByCustom = date => {
+  return `${
+    date.getHours().toString().length < 2
+      ? `0${date.getHours()}`
+      : `${date.getHours()}`
+  }.${
+    date.getMinutes().toString().length < 2
+      ? `0${date.getMinutes()}`
+      : `${date.getMinutes()}`
+  }`;
+};
+// const getFullDate = (data = null) => {
+//   const date = data ? new Date(data) : new Date();
+//   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+// };
+const getFullDate = (data = null) => {
+  const date = data ? new Date(data) : new Date();
+  return `${date.getFullYear()}-${
+    (date.getMonth() + 1).toString().length < 2
+      ? `0${date.getMonth() + 1}`
+      : `${date.getMonth() + 1}`
+  }-${
+    date.getDate().toString().length < 2
+      ? `0${date.getDate()}`
+      : `${date.getDate()}`
+  }`;
+};
+const dialogCallback = async (title, body, isShow, type, callback = null) => {
   if (isShow) {
     console.log('show nih');
-    Dialog.show({
+    await Dialog.show({
       type: type,
       title: title,
       textBody: body,
       autoClose: true,
       onHide: async () => {
+        console.log(callback);
         if (callback !== null) {
           await callback();
         }
@@ -190,7 +259,6 @@ const dialogFeedback = async (
   secondAction = null,
   callback = null,
 ) => {
-  let isOpened = false;
   await dialogCallback(
     title,
     body,
@@ -273,7 +341,7 @@ const errorFetchWithFeedback = async (
       time,
       null,
     );
-  } else if (error.toJSON().message === 'Network Error') {
+  } else if (error?.toJSON().message === 'Network Error') {
     dialogFeedback(
       'Oops..',
       'No Internet Connection',
@@ -355,7 +423,8 @@ const logout = async (
   }
   await dispatch(logoutUserActionCreator(refreshToken));
   Dialog.hide();
-  navigation.navigate('Intro');
+  navigation.replace('Intro');
+  // navigation.replace('Login');
   if (setIsLoading) {
     setIsLoading(false);
   }
@@ -367,16 +436,40 @@ const authRefreshToken = async (
 ) => {
   await dispatch(refreshTokenActionCreator(dataUser.refreshToken));
 };
+
+const getCalculatedTime = (minute, time = false) => {
+  const date = new Date();
+  const dateNow = new Date();
+  //saat tanggal  sama dengan hari ini
+  if (time == true) {
+    date.setHours(8, 0, 0);
+  } else {
+    // saat tanggal tidak sama
+    date.setHours(
+      dateNow.getHours(),
+      dateNow.getMinutes(),
+      dateNow.getSeconds(),
+    );
+  }
+
+  return getFullTimeByCustom(new Date(date.getTime() + minute * 60000));
+};
 export {
   dialogCallback,
   errorFetchWithFeedback,
   dialogFeedback,
   logout,
+  renderStatusAntrianColor,
   authRefreshToken,
   showToast,
+  showToast2,
   dateConvert,
   errorFetch,
+  getFullTime,
+  getFullDate,
+  getCalculatedTime,
   alertConfirmation,
   dateOnlyConvert,
   dateToDBConvert,
+  getFcmToken,
 };

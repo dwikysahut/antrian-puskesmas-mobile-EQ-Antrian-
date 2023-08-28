@@ -3,7 +3,10 @@ import React from 'react';
 import {Select} from 'native-base';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {dateOnlyConvert} from '../../../../../../utils/functionHelper';
+import {
+  dateOnlyConvert,
+  renderStatusAntrianColor,
+} from '../../../../../../utils/functionHelper';
 import {statusAntrian} from '../../../../../../utils/DATA';
 import {color} from '../../../../../../utils/Color';
 const ItemAntrian = ({
@@ -11,21 +14,9 @@ const ItemAntrian = ({
   onClickShowStatusModal,
   onClickShowKehadiranModal,
   handlerStatus,
+  onClickPanggilHandler,
   handlerKehadiran,
 }) => {
-  const renderStatusAntrianColor = value => {
-    if (value < 4) {
-      return '#CFB53B';
-    } else if (value == 4) {
-      return 'black';
-    } else if (value == 5) {
-      return 'black';
-    } else if (value == 6) {
-      return 'darkgreen';
-    } else {
-      return 'darkred';
-    }
-  };
   return (
     <View style={styles.container}>
       <View style={styles.firstRow}>
@@ -64,20 +55,24 @@ const ItemAntrian = ({
               marginTop: 8,
               fontWeight: 'bold',
             }}>
-            {data.status_hadir === 1 ? 'Hadir' : 'Belum Hadir'}
+            {data.status_hadir === 1
+              ? 'Hadir'
+              : data.status_hadir === 2
+              ? 'Tidak Hadir'
+              : 'Belum Hadir'}
           </Text>
         </View>
       </View>
       <View style={styles.row}>
         <Text
-          style={{color: 'black', fontSize: 18, fontStyle: 'italic', flex: 1}}>
+          style={{color: 'black', fontSize: 13, fontStyle: 'italic', flex: 1}}>
           {data.sumber}
         </Text>
 
         <Text
           style={{
             color: renderStatusAntrianColor(data.status_antrian),
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: 'bold',
           }}>
           {statusAntrian[parseInt(data.status_antrian, 10) - 1]}
@@ -88,7 +83,7 @@ const ItemAntrian = ({
           <TouchableOpacity
             onPress={() => onClickShowKehadiranModal(data)}
             style={[
-              styles.btn,
+              styles.btnAksi,
               {
                 backgroundColor: 'white',
                 borderColor: color.main,
@@ -104,15 +99,29 @@ const ItemAntrian = ({
       ) : (
         <></>
       )}
-      {data.status_antrian >= 4 && data.status_antrian < 6 ? (
-        <View style={styles.row}>
+      {data.status_antrian >= 4 &&
+      data.status_antrian < 6 &&
+      parseInt(data.status_hadir, 10) === 1 ? (
+        <View style={styles.col}>
           <TouchableOpacity
             onPress={() => onClickShowStatusModal(data)}
-            style={[styles.btn, {backgroundColor: color.main}]}>
+            style={[styles.btnAksi, {backgroundColor: color.main}]}>
             <Text style={{fontSize: 18, color: 'white', textAlign: 'center'}}>
               Ubah Status Antrian
             </Text>
           </TouchableOpacity>
+          {parseInt(data.status_antrian) < 5 && (
+            <>
+              <TouchableOpacity
+                onPress={() => onClickPanggilHandler(data)}
+                style={[styles.btnAksi, {backgroundColor: 'black'}]}>
+                <Text
+                  style={{fontSize: 18, color: 'white', textAlign: 'center'}}>
+                  Panggil
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       ) : (
         <></>
@@ -151,11 +160,29 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 6,
   },
+  col: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+
+    flex: 1,
+    marginTop: 10,
+    paddingHorizontal: 6,
+  },
   btn: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 5,
     flex: 1,
+  },
+  btnAksi: {
+    paddingVertical: 8,
+    marginVertical: 3,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    flex: 1,
+    width: '100%',
   },
 });
 export default ItemAntrian;

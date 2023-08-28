@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import {store, persistor} from './src/redux/store';
@@ -33,133 +33,146 @@ import DetailKartuIdentitas from './src/screens/Home/Screens/DetailKartuIdentita
 import Scanner from './src/screens/Home/Screens/Scanner.js/Scanner';
 import HomePendaftaran from './src/screens/Home/Screens/PendaftaranBaru/HomePendaftaran';
 import {color} from './src/utils/Color';
+import {SocketContext, socket, socketInit} from './src/context/socket';
+import PushNotification from 'react-native-push-notification';
+import {createChannel} from './src/utils/ChannelNotificationCreator';
+import {StatusBar} from 'react-native';
 
 const Stack = createStackNavigator();
 
 const App = () => {
+  useEffect(() => {
+    createChannel();
+  }, []);
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <NativeBaseProvider>
-          <NavigationContainer>
-            <Stack.Navigator initialRoute="Splash">
-              <Stack.Screen
-                name="Splash"
-                component={Splash}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="Intro"
-                component={Intro}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="Login"
-                component={Login}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="Register"
-                component={Register}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="LupaPassword"
-                component={LupaPassword}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="EmailVerify"
-                component={EmailVerification}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="Home"
-                component={Home}
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="DetailInformasi"
-                component={DetailInformasi}
-                options={{title: 'Detail'}}
-              />
-              <Stack.Screen
-                name="DetailPoli"
-                component={DetailPoli}
-                options={{
-                  title: 'Informasi',
-                  headerTransparent: {
-                    position: 'absolute',
-                    backgroundColor: 'transparent',
-                    zIndex: 100,
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                  },
-                  headerTintColor: 'white',
-                }}
-              />
-              <Stack.Screen
-                name="ContactUs"
-                component={ContactUs}
-                options={{title: 'Hubungi Kami'}}
-              />
-              <Stack.Screen
-                name="AboutApps"
-                component={AboutApps}
-                options={{title: 'Tentang Aplikasi'}}
-              />
-              <Stack.Screen
-                name="HomePendaftaran"
-                component={HomePendaftaran}
-                options={{title: 'Pendaftaran Antrian'}}
-              />
-              <Stack.Screen
-                name="KartuIdentitas"
-                component={KartuIdentitas}
-                options={{title: 'Kartu Identitas'}}
-              />
-              <Stack.Screen
-                name="DetailKartuIdentitas"
-                component={DetailKartuIdentitas}
-                options={{title: 'Detail Kartu Identitas'}}
-              />
-              <Stack.Screen
-                name="Scanner"
-                component={Scanner}
-                options={{title: 'Scanner'}}
-              />
-              <Stack.Screen
-                name="EditProfile"
-                component={EditProfile}
-                options={{
-                  title: 'Informasi Saya',
-                  headerStyle: {
-                    backgroundColor: color.main,
-                    elevation: 0, // remove shadow on Android
-                    shadowOpacity: 0, // remove shadow on iOS
-                  },
+        <SocketContext.Provider value={() => socketInit()}>
+          <NativeBaseProvider>
+            <NavigationContainer>
+              <StatusBar animated={true} backgroundColor={color.main} />
+              <Stack.Navigator initialRoute="Splash">
+                <Stack.Screen
+                  name="Splash"
+                  component={Splash}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="Intro"
+                  component={Intro}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="Login"
+                  component={Login}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="Register"
+                  component={Register}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="LupaPassword"
+                  component={LupaPassword}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="EmailVerify"
+                  component={EmailVerification}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="Home"
+                  component={Home}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="DetailInformasi"
+                  component={DetailInformasi}
+                  options={{title: 'Detail'}}
+                />
+                <Stack.Screen
+                  name="DetailPoli"
+                  component={DetailPoli}
+                  // options={{
+                  //   title: 'Informasi',
+                  //   headerTransparent: {
+                  //     position: 'absolute',
+                  //     backgroundColor: 'transparent',
+                  //     zIndex: 100,
+                  //     top: 0,
+                  //     left: 0,
+                  //     right: 0,
+                  //   },
+                  //   headerTintColor: 'white',
+                  // }}
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="ContactUs"
+                  component={ContactUs}
+                  options={{title: 'Hubungi Kami'}}
+                />
+                <Stack.Screen
+                  name="AboutApps"
+                  component={AboutApps}
+                  options={{title: 'Tentang Aplikasi'}}
+                />
+                <Stack.Screen
+                  name="HomePendaftaran"
+                  component={HomePendaftaran}
+                  options={{title: 'Pendaftaran Antrian'}}
+                />
+                <Stack.Screen
+                  name="KartuIdentitas"
+                  component={KartuIdentitas}
+                  options={{title: 'Kartu Identitas'}}
+                />
+                <Stack.Screen
+                  name="DetailKartuIdentitas"
+                  component={DetailKartuIdentitas}
+                  options={{title: 'Detail Kartu Identitas'}}
+                />
+                <Stack.Screen
+                  name="Scanner"
+                  component={Scanner}
+                  options={{title: 'Scanner'}}
+                />
+                <Stack.Screen
+                  name="EditProfile"
+                  component={EditProfile}
+                  options={{
+                    title: 'Informasi Saya',
+                    headerStyle: {
+                      backgroundColor: color.main,
+                      elevation: 0, // remove shadow on Android
+                      shadowOpacity: 0, // remove shadow on iOS
+                    },
 
-                  headerTintColor: 'white',
-                }}
-              />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </NativeBaseProvider>
+                    headerTintColor: 'white',
+                  }}
+                />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </NativeBaseProvider>
+        </SocketContext.Provider>
       </PersistGate>
     </Provider>
   );

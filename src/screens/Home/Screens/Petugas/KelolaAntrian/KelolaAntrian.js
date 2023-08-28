@@ -1,5 +1,11 @@
 import queryString from 'query-string';
-import React, {useState, useRef, useEffect, useCallback} from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useContext,
+} from 'react';
 import {
   View,
   StyleSheet,
@@ -28,6 +34,7 @@ import {
   dialogCallback,
   dialogFeedback,
   errorFetchWithFeedback,
+  getFullDate,
   logout,
 } from '../../../../../utils/functionHelper';
 import {
@@ -43,6 +50,8 @@ import ItemAntrian from './Components/ItemAntrian';
 import ModalKehadiran from './Components/ModalKehadiran';
 import ModalStatusAntrian from './Components/ModalStatusAntrian';
 import SelectPoli from './Components/SelectPoli';
+import {SocketContext} from '../../../../../context/socket';
+import LoaderModal from '../../../../../Components/LoaderModal';
 
 const DATA = [
   {
@@ -79,12 +88,13 @@ const DATA = [
 
 const KelolaAntrian = ({navigation}) => {
   const listRef = useRef(null);
-
+  const socket = useContext(SocketContext);
   const dispatch = useDispatch();
   const dataPraktek = useSelector(({reducerPraktek}) => reducerPraktek);
   const dataUser = useSelector(({reducerUser}) => reducerUser.data);
   const [dataAntrian, setDataAntrian] = useState([]);
   const [isLoadingAntrian, setIsLoadingAntrian] = useState(false);
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
   const [isFirstRender, setIsFirstRender] = useState(false);
 
   const [isShowStatusModal, setIsShowStatusModal] = useState(false);
@@ -92,9 +102,10 @@ const KelolaAntrian = ({navigation}) => {
 
   const [selectedData, setSelectedData] = useState({});
 
-  const [poliValue, setPoliValue] = useState(
-    dataPraktek?.data[0]?.id_praktek || '',
-  );
+  const [poliValue, setPoliValue] = useState({
+    value: dataPraktek?.data[0]?.id_praktek || '',
+    isSocket: false,
+  });
   const [showGoTopBtn, setShowGoTopBtn] = useState(false);
 
   const onPressFabHandler = ref => {
@@ -110,13 +121,13 @@ const KelolaAntrian = ({navigation}) => {
     if (isFirstRender) {
       setIsLoadingAntrian(true);
     }
-    console.log(poliValue);
+    console.log('fetch nih');
     getAllAntrianByFilter(
       queryString.stringify(
         {
-          id_praktek: poliValue,
-          // tanggal_periksa: dateToDBConvert(),
-          tanggal_periksa: '2023-03-22',
+          id_praktek: poliValue.value,
+          tanggal_periksa: dateToDBConvert(),
+          // tanggal_periksa: '2023-03-22',
         },
         dataUser.token,
       ),
@@ -127,29 +138,59 @@ const KelolaAntrian = ({navigation}) => {
         setDataAntrian(response.data.data);
       })
       .catch(error => {
-        console.log(error);
+        errorFetchWithFeedback(
+          error,
+          navigation.navigate,
+          3000,
+          () =>
+            logout(
+              dataUser.refreshToken,
+              setIsLoadingAntrian,
+              dispatch,
+              logoutUserActionCreator,
+              navigation,
+            ),
+          () => authRefreshToken(dispatch, refreshTokenActionCreator, dataUser),
+        );
       })
       .finally(() => {
         setIsLoadingAntrian(false);
         setIsFirstRender(false);
       });
-  }, [dataUser.token, isFirstRender, poliValue]);
+  }, [dataUser, dispatch, isFirstRender, navigation, poliValue]);
 
   const onPoliChangeHandler = value => {
-    setPoliValue(value);
+    setPoliValue(prevState => ({...prevState, value: value}));
   };
 
   useEffect(() => {
     fetchAllAntrian();
-  }, [fetchAllAntrian, poliValue]);
+  }, [fetchAllAntrian, poliValue.value]);
 
   useEffect(() => {
-    const socket = io(URL_BASE);
-    socket.on('server-addAntrian', () => {
-      fetchAllAntrian();
+    socket().on('server-addAntrian', ({tanggal_periksa, id_praktek}) => {
+      setPoliValue(prevState => ({
+        ...prevState,
+        isSocket: true,
+        tanggal_periksa_socket: tanggal_periksa,
+        id_praktek_socket: id_praktek,
+      }));
     });
-    socket.on('server-editAntrian', () => {
-      fetchAllAntrian();
+    socket().on('server-editAntrian', ({tanggal_periksa, id_praktek}) => {
+      setPoliValue(prevState => ({
+        ...prevState,
+        isSocket: true,
+        tanggal_periksa_socket: tanggal_periksa,
+        id_praktek_socket: id_praktek,
+      }));
+    });
+    socket().on('server-swapAntrian', ({tanggal_periksa, id_praktek}) => {
+      setPoliValue(prevState => ({
+        ...prevState,
+        isSocket: true,
+        tanggal_periksa_socket: tanggal_periksa,
+        id_praktek_socket: id_praktek,
+      }));
     });
     setIsFirstRender(true);
     fetchAllAntrian();
@@ -158,13 +199,40 @@ const KelolaAntrian = ({navigation}) => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchAllAntrian();
       setIsFirstRender(true);
+      setPoliValue({
+        value: dataPraktek?.data[0]?.id_praktek || '',
+        isSocket: false,
+      });
       dispatch(getAllPraktekActionCreator(dataUser.token));
       console.log('focus');
     });
 
     // Return the function to unsubscribe from the event so it gets removed on unmount
-    return unsubscribe;
+    return () => {
+      // socket.disconnect();
+      unsubscribe;
+    };
   }, []);
+  useEffect(() => {
+    if (poliValue.isSocket) {
+      if (
+        poliValue.tanggal_periksa_socket == getFullDate() &&
+        poliValue.id_praktek_socket == poliValue.value
+      ) {
+        console.log('fetch');
+        fetchAllAntrian();
+      }
+      // else if (
+      //   poliValue.tanggal_periksa_socket == getFullDate() &&
+      //   poliValue.id_praktek_socket != poliValue.value &&
+      //   poliValue.value == ''
+      // ) {
+      //   console.log('fetch kosong');
+      //   fetchAllAntrian();
+      // }
+      setPoliValue(prevState => ({...prevState, isSocket: false}));
+    }
+  }, [poliValue]);
 
   useEffect(() => {
     if (dataPraktek.isRejected) {
@@ -205,6 +273,7 @@ const KelolaAntrian = ({navigation}) => {
 
     alertConfirmation(`Ubah status kehadiran menjadi "${message}"`, () => {
       console.log(data);
+      setIsLoadingModal(true);
       putStatusAntrian(data.id_antrian, {status_hadir: value}, dataUser.token)
         .then(response => {
           console.log(response);
@@ -217,6 +286,7 @@ const KelolaAntrian = ({navigation}) => {
               ALERT_TYPE.SUCCESS,
               () => setIsShowKehadiranModal(!isShowKehadiran),
             );
+            fetchAllAntrian();
           }
         })
         .catch(error => {
@@ -236,16 +306,24 @@ const KelolaAntrian = ({navigation}) => {
             () =>
               authRefreshToken(dispatch, refreshTokenActionCreator, dataUser),
           );
+        })
+        .finally(() => {
+          setIsLoadingModal(false);
         });
     });
+  };
+  const onClickPanggilHandler = data => {
+    console.log('panggil');
+    socket().emit('client-publishNotification', 'poli', data);
   };
   const updateStatusAntrianHandler = useCallback(
     (data, value) => {
       alertConfirmation('Yakin untuk mengubah status antrian ?', () => {
         console.log(data);
+        setIsLoadingModal(true);
         putStatusAntrian(
           data.id_antrian,
-          {status_antrian: value},
+          {status_antrian: value, sumber: 'Mobile-Petugas'},
           dataUser.token,
         )
           .then(response => {
@@ -259,6 +337,7 @@ const KelolaAntrian = ({navigation}) => {
                 ALERT_TYPE.SUCCESS,
                 () => setIsShowStatusModal(!isShowStatusModal),
               );
+              fetchAllAntrian();
             }
             if (response.status == 204) {
               dialogCallback(
@@ -287,6 +366,9 @@ const KelolaAntrian = ({navigation}) => {
               () =>
                 authRefreshToken(dispatch, refreshTokenActionCreator, dataUser),
             );
+          })
+          .finally(() => {
+            setIsLoadingModal(false);
           });
       });
     },
@@ -298,6 +380,7 @@ const KelolaAntrian = ({navigation}) => {
       <ItemAntrian
         data={item}
         onClickShowKehadiranModal={onClickShowKehadiranModal}
+        onClickPanggilHandler={onClickPanggilHandler}
         onClickShowStatusModal={onClickShowStatusModal}
       />
     );
@@ -307,7 +390,7 @@ const KelolaAntrian = ({navigation}) => {
     <AlertNotificationRoot>
       <View style={styles.container}>
         <SelectPoli
-          poliValue={poliValue}
+          poliValue={poliValue.value}
           onPoliChangeHandler={onPoliChangeHandler}
           dataPoli={dataPraktek.data}
         />
@@ -323,6 +406,7 @@ const KelolaAntrian = ({navigation}) => {
         ) : (
           <ActivityIndicatorComponent />
         )}
+
         <ModalKehadiran
           isShow={isShowKehadiran}
           setIsShow={setIsShowKehadiranModal}
@@ -338,6 +422,10 @@ const KelolaAntrian = ({navigation}) => {
         <FabButton
           isShow={showGoTopBtn}
           onPressFabHandler={onPressFabHandler}
+        />
+        <LoaderModal
+          modalVisible={isLoadingModal}
+          setModalVisible={setIsLoadingModal}
         />
       </View>
     </AlertNotificationRoot>

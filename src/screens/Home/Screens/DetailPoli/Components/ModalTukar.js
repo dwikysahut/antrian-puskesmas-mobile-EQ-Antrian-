@@ -35,10 +35,11 @@ const ModalTukar = ({
               borderWidth: 1,
               marginTop: 16,
               padding: 8,
+              color: 'black',
 
               textAlignVertical: 'top',
             }}
-            numberOfLines={8}
+            numberOfLines={4}
             onChangeText={text => onTextChangeInputHandler(text)}
           />
           <View style={{flexDirection: 'row'}}>
@@ -76,10 +77,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalWrapper: {
-    margin: 20,
+    margin: 0,
     backgroundColor: 'white',
     borderRadius: 10,
-    padding: 20,
+    padding: 10,
     width: '85%',
 
     shadowColor: '#000',
